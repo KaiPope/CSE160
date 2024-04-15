@@ -4,47 +4,47 @@ class Triangle{
         this.position = [0.0,0.0,0.0];
         this.color = [1.0,1.0,1.0,1.0];
         this.size = 5.0;
-        // this.drawing=false;
-        // this.drawPosition=[0.0,0.0,0.0,0.0,];
+        this.drawing=false;
+        this.drawPosition=[0.0,0.0,0.0,0.0,];
     }
   
     render() {
-        var xy = this.position;
-        var rgba = this.color;
-        var size = this.size;
+        // var xy = this.position;
+        // var rgba = this.color;
+        // var size = this.size;
         
-        // Pass the position of a point to a_Position variable
-        gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
-        // Pass the color of a point to u_FragColor variable
-        gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-        //pass the size of a point to u_Size variable
-        gl.uniform1f(u_Size, size);
+        // // Pass the position of a point to a_Position variable
+        // gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
+        // // Pass the color of a point to u_FragColor variable
+        // gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+        // //pass the size of a point to u_Size variable
+        // gl.uniform1f(u_Size, size);
         
-        var d = this.size/200.00;
-        drawTriangle( [xy[0]-d/2, xy[1]-d/2, xy[0]+d/2, xy[1]-d/2, xy[0], xy[1]+d/2] );
-
-        // if (this.drawing=true){
-        //     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-        //     drawTriangle(this.drawPosition);
-        // }
-        // else{
-        //     var xy = this.position;
-        //     var rgba = this.color;
-        //     var size = this.size;
+        // var d = this.size/200.00;
+        // drawTriangle( [xy[0]-d/2, xy[1]-d/2, xy[0]+d/2, xy[1]-d/2, xy[0], xy[1]+d/2] );
+        if (this.drawing==true){
+            var rgba = this.color;
+            gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+            
+            drawTriangle(this.drawPosition);
+        }
+        else{
+            var xy = this.position;
+            var rgba = this.color;
+            var size = this.size;
                
            
-        //     // Pass the position of a point to a_Position variable
-        //     gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
-        //     // Pass the color of a point to u_FragColor variable
-        //     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-        //     //pass the size of a point to u_Size variable
-        //     gl.uniform1f(u_Size, size);
+            // Pass the position of a point to a_Position variable
+            gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
+            // Pass the color of a point to u_FragColor variable
+            gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+            //pass the size of a point to u_Size variable
+            gl.uniform1f(u_Size, size);
 
-        //     // Draw
-        //     console.log("hi")
-        //     var d = this.size/200.00;
-        //     drawTriangle( [xy[0]-d/2, xy[1]-d/2, xy[0]+d/2, xy[1]-d/2, xy[0], xy[1]+d/2] );
-        // }
+            // Draw
+            var d = this.size/200.00;
+            drawTriangle( [xy[0]-d/2, xy[1]-d/2, xy[0]+d/2, xy[1]-d/2, xy[0], xy[1]+d/2] );
+        }
     }
     
   }
