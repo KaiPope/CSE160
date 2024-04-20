@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 
 function main() {
     const canvas = document.querySelector('#c');
@@ -17,5 +19,20 @@ function main() {
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
     console.log("Hi");
+
     renderer.render(scene, camera);
+
+    function render(time) {
+        time *= 0.001;  // convert time to seconds
+       
+        cube.rotation.x = time;
+        cube.rotation.y = time;
+       
+        renderer.render(scene, camera);
+       
+        requestAnimationFrame(render);
+      }
+      
+      requestAnimationFrame(render);
 }
+
