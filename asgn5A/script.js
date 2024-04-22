@@ -7,13 +7,14 @@ function main() {
 
 	const canvas = document.querySelector( '#c' );
 	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
+  renderer.setSize(300,200);
 
-	const fov = 75;
+	const fov = 110;
 	const aspect = 2; // the canvas default
 	const near = 0.1;
-	const far = 5;
+	const far = 10;
 	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-	camera.position.z = 2;
+	camera.position.z = 2.2;
 
 	const scene = new THREE.Scene();
 
@@ -45,7 +46,6 @@ function main() {
 		cube.position.x = x;
 
 		return cube;
-
 	}
 
   function makeCylinder( geometry, color, x ) {
@@ -64,7 +64,7 @@ function main() {
   function makeSphere( geometry, color, x ) {
 
     const loader = new THREE.TextureLoader();
-    const texture = loader.load('./grasstexture.jpg');
+    const texture = loader.load('./lib/grasstexture.jpg');
     texture.colorSpace = THREE.SRGBColorSpace;
 
 		const material = new THREE.MeshBasicMaterial( {
@@ -79,12 +79,11 @@ function main() {
 		return sphere;
 
 	}
-  
 
 	const cubes = [
-		makeInstance( geometry, 0x7bba88, 0 ),
-    makeCylinder( cylinder, 0x8eb0e8, -2 ),
-    makeSphere( sphere, 0xae7dc7, 2),
+		makeInstance( geometry, 0x7bba88, 2 ),
+    makeCylinder( cylinder, 0x8eb0e8, -4 ),
+    makeSphere( sphere, 0xae7dc7, 4),
 	];
 
 	function render( time ) {
@@ -108,17 +107,15 @@ function main() {
 
   const objLoader = new OBJLoader();
   const mtlLoader = new MTLLoader();
-  mtlLoader.load('gala-apple.mtl', (mtl) => {
+  mtlLoader.load('./lib/gala-apple.mtl', (mtl) => {
     mtl.preload();
     objLoader.setMaterials(mtl);
-    objLoader.load('gala-apple.obj', (root) => {
-      scene.add(root);
+    objLoader.load('./lib/gala-apple.obj', (root) => {
+      scene.add(root); root.position.x=-3;root.position.y=-2;root.position.z=.3;
     });
   });
 
-
 	requestAnimationFrame( render );
-  
 
 }
 
