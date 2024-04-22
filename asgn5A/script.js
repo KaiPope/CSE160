@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 function main() {
 
@@ -105,15 +106,36 @@ function main() {
 
 	}
 
-  const objLoader = new OBJLoader();
-  const mtlLoader = new MTLLoader();
-  mtlLoader.load('./lib/gala-apple.mtl', (mtl) => {
-    mtl.preload();
-    objLoader.setMaterials(mtl);
-    objLoader.load('./lib/gala-apple.obj', (root) => {
-      scene.add(root); root.position.x=-3;root.position.y=-2;root.position.z=.3;
-    });
-  });
+  // const mtlLoader = new MTLLoader();
+  // mtlLoader.load('./lib/gala-apple.mtl', (mtl) => {
+    
+  //   mtl.preload();
+  //   const objLoader = new OBJLoader();
+  //   objLoader.setMaterials(mtl);
+  //   objLoader.load('./lib/gala-apple.obj', (root) => {
+      
+  //     scene.add(root); 
+  //     root.position.x=-3;
+  //     root.position.y=-1.8;
+  //     root.position.z=.3;
+  //   });
+  // });
+
+  const loader = new GLTFLoader();
+
+  loader.load( './lib/gala-apple.glb', function ( gltf ) {
+
+      scene.add( gltf.scene );
+      const apple = gltf.scene 
+      apple.position.x=-3;
+      apple.position.y=-2;
+      apple.position.Z=.3;
+
+    }, undefined, function ( error ) {
+
+      console.error( error );
+
+    } );
 
 	requestAnimationFrame( render );
 
