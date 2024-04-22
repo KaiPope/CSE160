@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-//import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 
 function main() {
 
@@ -105,15 +106,21 @@ function main() {
 
 	}
 
-  //obj render
-  // const objLoader = new OBJLoader();
-  // objLoader.load('./gala-apple.obj', (root) => {
-  //   scene.add(root);
-  // });
+  const objLoader = new OBJLoader();
+  const mtlLoader = new MTLLoader();
+  mtlLoader.load('gala-apple.mtl', (mtl) => {
+    mtl.preload();
+    objLoader.setMaterials(mtl);
+    objLoader.load('gala-apple.obj', (root) => {
+      scene.add(root);
+    });
+  });
 
 
 	requestAnimationFrame( render );
+  
 
 }
 
 main();
+
