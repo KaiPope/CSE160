@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Assignment 1</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+
+    <p id="numdot">XXX</p>
+    Animate:
+    <button type="button" id="animationOnButton">On</button>
+    <button type="button" id="animationOffButton">Off</button>
+    <p>
+    Lower Leg <input type="range" min="0" max="5" value="0" class="slider" id="magentaSlide">
+    <!-- Animation: 
+    <button type="button" id="animationMagentaOnButton">On</button>
+    <button type="button" id="animationMagentaOffButton">Off</button> -->
+    
+    <p>
+    Upper Leg <input type="range" min="-20" max="20" value="0" class="slider" id="yellowSlide">  
+
+    Neck <input type="range" min="-9" max="5" value="-2" class="slider" id="neckSlide">  
+
+    
+    <!-- Animation: 
+    <button type="button" id="animationYellowOnButton">On</button>
+    <button type="button" id="animationYellowOffButton">Off</button> -->
+
+    <p>
+    Camera Angle <input type="range" min="0" max="360" value="0" class="slider" id="angleSlide">
+    <p>
+
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Sphere.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Point.js"></script>
+    <script src="BlockyAnimal.js"></script>
+    
+  </body>
+</html>
