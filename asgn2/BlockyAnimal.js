@@ -120,12 +120,12 @@ function addActionsForHtmlUI(){
   document.getElementById('animationOffButton').onclick = function() {g_animation=false};
 
 
-  document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderAllShapes();})
-  document.getElementById('magentaSlide').addEventListener('mousemove', function() { g_magentaAngle = this.value; renderAllShapes();})
-  document.getElementById('hoofSlide').addEventListener('mousemove', function() { g_hoofAngle = this.value; renderAllShapes();})
-  document.getElementById('neckSlide').addEventListener('mousemove', function() { g_neckAngle = this.value; renderAllShapes();})
+  document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderScene();})
+  document.getElementById('magentaSlide').addEventListener('mousemove', function() { g_magentaAngle = this.value; renderScenes();})
+  document.getElementById('hoofSlide').addEventListener('mousemove', function() { g_hoofAngle = this.value; renderScene();})
+  document.getElementById('neckSlide').addEventListener('mousemove', function() { g_neckAngle = this.value; renderScene();})
 
-  document.getElementById('angleSlide').addEventListener('mousemove', function() { g_globalAngle = this.value; renderAllShapes();})
+  document.getElementById('angleSlide').addEventListener('mousemove', function() { g_globalAngle = this.value; renderScene();})
 
 }
 
@@ -154,7 +154,7 @@ function tick(){
   
   updateAnimationAngles();
 
-  renderAllShapes();
+  renderScene();
 
   requestAnimationFrame(tick);
 }
@@ -178,9 +178,7 @@ function updateAnimationAngles(){
   }
 }
 
-function renderAllShapes(){
-  
-  var startTime = performance.now();
+function renderScene(){
 
   var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
@@ -189,12 +187,13 @@ function renderAllShapes(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  // var eye = new Sphere();
-  // eye.color = [1,1,0,1];
-  // eye.matrix.translate(-.8,-.5,0);
-  // eye .matrix.scale(1.5,1.5,1.5);
-  // eye.render();
+  renderAllShapes()
+}
 
+function renderAllShapes(){
+
+  var startTime = performance.now();
+  
   var bodycolor = [0.23, 0.15, 0.06, 1];
   var upLegColor = [0.2, 0.13, 0.05,1];
   var lowLegColor = [0.69, 0.67, 0.64,1];
@@ -463,7 +462,7 @@ function renderAllShapes(){
   blHoof.matrix.translate(0, -1,-1);
   blHoof.render();
 
-  var lEar = new Prism();
+  var lEar = new triPrism();
   lEar.color = bodycolor;
   lEar.matrix.rotate(g_neckAngle,1,0,0);
   lEar.matrix.rotate(g_headAngle,0,1,0);
@@ -471,7 +470,7 @@ function renderAllShapes(){
   lEar.matrix.scale(.1,.15,.1);
   lEar.render();
 
-  var rEar = new Prism();
+  var rEar = new triPrism();
   rEar.color = bodycolor;
   rEar.matrix.rotate(g_neckAngle,1,0,0);
   rEar.matrix.rotate(g_headAngle,0,1,0);

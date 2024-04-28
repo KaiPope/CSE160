@@ -1,4 +1,4 @@
-class Prism {
+class triPrism {
     constructor() {
         this.type = 'prism';
         this.color = [1.0, 1.0, 1.0, 1.0];
