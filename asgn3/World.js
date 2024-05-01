@@ -23,22 +23,24 @@ var FSHADER_SOURCE = `
   precision mediump float;
   varying vec2 v_UV;
   uniform vec4 u_FragColor;
+  //uniform sampler2d u_Sampler0;
   void main() {
     gl_FragColor = u_FragColor;
     //gl_FragColor = vec4(v_UV, 1,1);
+    //gl_FragColor = texture2D(u_Sampler0, v_UV);
   }`
 
 //Global Variables
 let canvas;
 let gl;
 let a_Position;
+let a_UV;
 let u_FragColor;
 let u_Size;
-let u_modelMatrix;
+let u_ModelMatrix;
 let u_ProjectionMatrix;
 let u_ViewMatrix;
 let u_GlobalRotateMatrix;
-  
 
 function setupWebGL(){
   // Retrieve <canvas> element
@@ -62,7 +64,7 @@ function connectVariablesToGLSL(){
     return;
   }
 
-  // // Get the storage location of a_Position
+  // Get the storage location of a_Position
   a_Position = gl.getAttribLocation(gl.program, 'a_Position');
   if (a_Position < 0) {
     console.log('Failed to get the storage location of a_Position');
@@ -95,8 +97,14 @@ function connectVariablesToGLSL(){
   }
 
   u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
-  if (!u_GlobalRotateMatrix){
+  if (!u_ViewMatrix){
     console.log('Failed to get the storage location of u_ViewMatrix');
+    return;
+  }
+
+  u_ProjectionMatrix = gl.getUniformLocation(gl.program, 'u_ProjectionMatrix');
+  if (!u_ProjectionMatrix){
+    console.log('Failed to get the storage location of u_ProjectionMatrix');
     return;
   }
 
@@ -153,12 +161,56 @@ function addActionsForHtmlUI(){
 
 }
 
+// function initTextures(gl,n){
+//   var texture = gl.createTexture();
+//   if(!texture){
+//     console.log('Failed to create the texture object');
+//     return false;
+//   }
+
+//   var u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler0');
+//   if (!u_Sampler) {
+//     console.log('Failed to get storage location of u_Sampler0');
+//     return false;
+//   }
+
+//   var image = new Image();
+//   if (!image) {
+//     console.log('Failed to create the image object');
+//   }
+
+//   image.onload = function() { loadTexture(gl, n, texture, u_Sampler, image); }
+
+//   image.src = '/lib/sky.jpg';
+
+//   return true;
+
+// }
+
+// function loadTexture(gl, n, texture, u_Sampler, image){
+//   gl.pixieStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+
+//   gl.activeTexture(gl.TEXTURE0);
+
+//   gl.bindTexture(gl.TEXTURE_2D, texture);
+
+//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+//   gl.textImage2D(gl.TEXTURE_2D, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+//   gl.uniformli(u_Sampler0, 0);
+
+//   console.log('finished loadTexture');
+// }
+
 function main() {
 
   setupWebGL();
   connectVariablesToGLSL();
 
   addActionsForHtmlUI();
+
+  // initTextures(gl,0);
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.27, 0.5, 0.16,1);
@@ -499,7 +551,6 @@ function renderAllShapes(){
   rEar.matrix.translate(-.1,.68,-.12);
   rEar.matrix.scale(.1,.15,.1);
   rEar.render();
-
 
   var duration = performance.now() - startTime;
   sendTextToHTML("ms: "+ Math.floor(duration)+ " fps: "+ Math.floor(1000/duration), 'numdot')
