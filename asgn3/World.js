@@ -367,6 +367,14 @@ function renderAllShapes(){
   var scleraColor = [1,1,1,1];
   var noseColor = [0.12, 0.12, 0.09,1];
 
+  //block1
+  var block1 = new Cube();
+  block1.color = [1,1,1,1];
+  block1.textureNum = 1;
+  block1.matrix.translate(-.35,-.79,-.5);
+  block1.matrix.scale(.7,.2,1.2);
+  block1.render();
+
   //ground
   var ground = new Cube();
   ground.color=[1,1,1,1];
