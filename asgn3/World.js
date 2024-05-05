@@ -23,11 +23,22 @@ var FSHADER_SOURCE = `
   precision mediump float;
   varying vec2 v_UV;
   uniform vec4 u_FragColor;
-  //uniform sampler2d u_Sampler0;
+  uniform sampler2D u_Sampler0;
+  uniform sampler2D u_Sampler1;
+  uniform int u_whichTexture;
   void main() {
-    gl_FragColor = u_FragColor;
-    //gl_FragColor = vec4(v_UV, 1,1);
-    //gl_FragColor = texture2D(u_Sampler0, v_UV);
+    if(u_whichTexture == -2){
+       gl_FragColor = u_FragColor;
+    } else if (u_whichTexture == -1){
+       gl_FragColor = vec4(v_UV, 1.0, 1.0);
+    } else if(u_whichTexture == 0){
+       gl_FragColor = texture2D(u_Sampler0, v_UV);
+    } else if (u_whichTexture == 1) {
+      gl_FragColor = texture2D(u_Sampler1, v_UV);
+    } else {
+       gl_FragColor = vec4(1,.2,.2,1);
+    }
+
   }`
 
 //Global Variables
@@ -41,6 +52,9 @@ let u_ModelMatrix;
 let u_ProjectionMatrix;
 let u_ViewMatrix;
 let u_GlobalRotateMatrix;
+let u_Sampler0;
+let u_Sampler1;
+let u_whichTexture;
 
 function setupWebGL(){
   // Retrieve <canvas> element
@@ -108,7 +122,27 @@ function connectVariablesToGLSL(){
     return;
   }
 
+  u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
+  if (!u_Sampler0){
+    console.log('Failed to get the storage location of u_Sampler0');
+    return;
+  }
+
+  u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+  if (!u_Sampler1){
+    console.log('Failed to get the storage location of u_Sampler1');
+    return;
+  }
+
+  u_whichTexture = gl.getUniformLocation(gl.program, 'u_whichTexture');
+  if (!u_whichTexture){
+    console.log('Failed to get the storage location of u_whichTexture');
+    return;
+  }
+
   var identityM = new Matrix4();
+ 
+  
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 
 }
@@ -142,12 +176,6 @@ let g_animation = false;
 
 function addActionsForHtmlUI(){
 
-  // document.getElementById('animationMagentaOnButton').onclick = function() {g_magentaAnimation=true};
-  // document.getElementById('animationMagentaOffButton').onclick = function() {g_magentaAnimation=false};
-
-  // document.getElementById('animationYellowOnButton').onclick = function() {g_yellowAnimation=true};
-  // document.getElementById('animationYellowOffButton').onclick = function() {g_yellowAnimation=false};
-
   document.getElementById('animationOnButton').onclick = function() {g_animation=true};
   document.getElementById('animationOffButton').onclick = function() {g_animation=false};
 
@@ -161,47 +189,76 @@ function addActionsForHtmlUI(){
 
 }
 
-// function initTextures(gl,n){
-//   var texture = gl.createTexture();
-//   if(!texture){
-//     console.log('Failed to create the texture object');
-//     return false;
-//   }
+function initTextures(){
 
-//   var u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler0');
-//   if (!u_Sampler) {
-//     console.log('Failed to get storage location of u_Sampler0');
-//     return false;
-//   }
+  var image = new Image();
+  var image1 = new Image();
 
-//   var image = new Image();
-//   if (!image) {
-//     console.log('Failed to create the image object');
-//   }
+  if (!image) {
+    console.log('Failed to create the image object');
+    return false;
+  }
+  if (!image1) {
+    console.log('Failed to create the image1 object');
+    return false;
+  }
 
-//   image.onload = function() { loadTexture(gl, n, texture, u_Sampler, image); }
+  image.onload = function() { sendTextureToGLSL0(image); };
 
-//   image.src = '/lib/sky.jpg';
+  image1.onload = function() { sendTextureToGLSL1(image1); };
 
-//   return true;
+  image.src = '/lib/sky2.jpg';
+  image1.src = '/lib/snow.jpg';
 
-// }
+  return true;
 
-// function loadTexture(gl, n, texture, u_Sampler, image){
-//   gl.pixieStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+}
 
-//   gl.activeTexture(gl.TEXTURE0);
+function sendTextureToGLSL0(image){
 
-//   gl.bindTexture(gl.TEXTURE_2D, texture);
+  var texture = gl.createTexture();
+  if(!texture){
+    console.log('Failed to create the texture object');
+    return false;
+  }
 
-//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
-//   gl.textImage2D(gl.TEXTURE_2D, gl.RGB, gl.UNSIGNED_BYTE, image);
+  gl.activeTexture(gl.TEXTURE0);
 
-//   gl.uniformli(u_Sampler0, 0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
 
-//   console.log('finished loadTexture');
-// }
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler0, 0);
+
+  console.log('finished loadTexture');
+}
+
+function sendTextureToGLSL1(image){
+
+  var texture = gl.createTexture();
+  if(!texture){
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+
+  gl.activeTexture(gl.TEXTURE1);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler1, 1);
+
+  console.log('finished loadTexture1');
+}
 
 function main() {
 
@@ -210,15 +267,35 @@ function main() {
 
   addActionsForHtmlUI();
 
-  // initTextures(gl,0);
+  document.onkeydown = keydown;
+
+  initTextures();
+
 
   // Specify the color for clearing <canvas>
-  gl.clearColor(0.27, 0.5, 0.16,1);
+  gl.clearColor(0,0,0,1);
 
   // Clear <canvas>
   // gl.clear(gl.COLOR_BUFFER_BIT);
   //renderAllShapes();
   requestAnimationFrame(tick);
+}
+
+function keydown(ev) {
+  if(ev.keyCode==39 || ev.keyCode == 68){ // Right Arrow or D
+    // g_camera.right();
+ } else if (ev.keyCode==37 || ev.keyCode == 65){ // Left Arrow or A
+    // g_camera.left();
+ } else if (ev.keyCode==38 || ev.keyCode == 87){ // up Arrow or W
+    // g_camera.forward();
+ } else if (ev.keyCode==40 || ev.keyCode == 83){ // down Arrow or S
+    // g_camera.back();
+  } //else if (ev.keyCode==81){ // Q
+//     g_camera.panLeft();
+//  } else if (ev.keyCode==69){ // E
+//     g_camera.panRight();
+//  }
+ renderScene();
 }
 
 var g_startTime = performance.now()/1000.0;
@@ -256,6 +333,14 @@ function updateAnimationAngles(){
 
 function renderScene(){
 
+  var projMat = new Matrix4();
+  projMat.setPerspective(60, canvas.width/canvas.height, .1, 100);
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+
+  var viewMat = new Matrix4();
+  viewMat.setLookAt(0,0,-3, 0,0,100, 0,1,0);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
+
   var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
@@ -263,12 +348,15 @@ function renderScene(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  renderAllShapes()
+  
+
+  renderAllShapes();
 }
 
 function renderAllShapes(){
 
   var startTime = performance.now();
+
   
   var bodycolor = [0.23, 0.15, 0.06, 1];
   var upLegColor = [0.2, 0.13, 0.05,1];
@@ -279,6 +367,22 @@ function renderAllShapes(){
   var scleraColor = [1,1,1,1];
   var noseColor = [0.12, 0.12, 0.09,1];
 
+  //ground
+  var ground = new Cube();
+  ground.color=[1,1,1,1];
+  ground.textureNum = 1;
+  ground.matrix.translate (0,-.75,0);
+  ground.matrix.scale(10,0,10);
+  ground.matrix.translate(-.5,0,-.5);
+  ground.render();
+
+  //sky
+  var sky = new Cube();
+  sky.color=[1,0,0,1];
+  sky.textureNum = 0;
+  sky.matrix.scale(50,50,50);
+  sky.matrix.translate(-.5,-.5,-.5);
+  sky.render();
 
   // body
   var body = new Cube();
