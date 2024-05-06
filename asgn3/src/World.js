@@ -269,33 +269,55 @@ function main() {
 
   document.onkeydown = keydown;
 
-  initTextures();
+  g_camera = new Camera();
 
+  initTextures();
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0,0,0,1);
 
-  // Clear <canvas>
-  // gl.clear(gl.COLOR_BUFFER_BIT);
-  //renderAllShapes();
   requestAnimationFrame(tick);
 }
 
+function mouseCam(ev){
+  coord = convertCoordinatesEventToGL(ev);
+  if(coord[0] < 0.5){ // left side
+     g_camera.rotateCameraLeft(coord[0]*-10);
+  } else{
+     g_camera.rotateCameraRight(coord[0]*-10);
+  }
+}
+
 function keydown(ev) {
-  if(ev.keyCode==39 || ev.keyCode == 68){ // Right Arrow or D
-    // g_camera.right();
- } else if (ev.keyCode==37 || ev.keyCode == 65){ // Left Arrow or A
-    // g_camera.left();
- } else if (ev.keyCode==38 || ev.keyCode == 87){ // up Arrow or W
-    // g_camera.forward();
- } else if (ev.keyCode==40 || ev.keyCode == 83){ // down Arrow or S
-    // g_camera.back();
-  } //else if (ev.keyCode==81){ // Q
-//     g_camera.panLeft();
-//  } else if (ev.keyCode==69){ // E
-//     g_camera.panRight();
-//  }
- renderScene();
+    
+  if(ev.keyCode == 87) { // W
+      g_camera.forward();
+  } else if(ev.keyCode == 83) { // S
+      g_camera.back();
+  } else if(ev.keyCode == 65) { // A
+      g_camera.left();
+  } else if(ev.keyCode == 68) { // D
+      g_camera.right();
+  }
+  
+  if(ev.keyCode == 81) { // Q
+      g_camera.rotateCameraLeft();
+  } else if(ev.keyCode == 69) { // E
+      g_camera.rotateCameraRight();
+  }
+
+  if(ev.keyCode == 88) { // X
+      g_camera.moveDown();
+  } else if(ev.keyCode == 67) { // C
+      g_camera.moveUp();
+  }
+
+  if(ev.keyCode == 82) { // R
+      g_camera.rotateCameraUp();
+  } else if(ev.keyCode == 70) { // F
+      g_camera.rotateCameraDown();
+  }
+  
 }
 
 var g_startTime = performance.now()/1000.0;
