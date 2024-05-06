@@ -9,6 +9,7 @@ class Camera{
        this.projMat = new Matrix4();
        this.projMat.setPerspective(50, canvas.width/canvas.height, 0.1, 1000);
     }
- 
+    
+    
   
  }
