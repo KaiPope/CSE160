@@ -147,10 +147,13 @@ function connectVariablesToGLSL(){
 
 }
 
+let g_camera;
+
 //constants
 const POINT = 0;
 const TRIANGLE = 1;
 const CIRCLE = 2;
+
 
 
 //UI Global Variables
@@ -267,7 +270,14 @@ function main() {
 
   addActionsForHtmlUI();
 
+  g_camera = new Camera();
   document.onkeydown = keydown;
+  // canvas.onmousedown = function(ev){
+  //   mouseDown(ev);
+  // }
+  // canvas.onmousemove = function(ev){
+  //   check(ev);
+  // }
 
   initTextures();
 
@@ -281,15 +291,22 @@ function main() {
   requestAnimationFrame(tick);
 }
 
+function mouseDown(ev){
+  // c = convertCoordinatesEventToGL(ev);
+  // if(c[0] < 0.5){
+  //   g_camera.pan
+  // }
+}
+
 function keydown(ev) {
   if(ev.keyCode==39 || ev.keyCode == 68){ // Right Arrow or D
-    // g_camera.right();
+    g_camera.moveRight();
  } else if (ev.keyCode==37 || ev.keyCode == 65){ // Left Arrow or A
-    // g_camera.left();
+    g_camera.moveLeft();
  } else if (ev.keyCode==38 || ev.keyCode == 87){ // up Arrow or W
-    // g_camera.forward();
+    g_camera.moveForward();
  } else if (ev.keyCode==40 || ev.keyCode == 83){ // down Arrow or S
-    // g_camera.back();
+    g_camera.moveBack();
   } //else if (ev.keyCode==81){ // Q
 //     g_camera.panLeft();
 //  } else if (ev.keyCode==69){ // E
