@@ -95,11 +95,10 @@ class Camera{
       this.at.set(d);
       this.at.add(this.eye);
    }
-   
 
    moveUp() {
       this.eye.add(this.up);
-  }
+   }
 
    moveDown() {
       this.eye.sub(this.up);
