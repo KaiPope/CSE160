@@ -260,6 +260,8 @@ function sendTextureToGLSL1(image){
   console.log('finished loadTexture1');
 }
 
+let g_camera;
+
 function main() {
 
   setupWebGL();
@@ -267,35 +269,32 @@ function main() {
 
   addActionsForHtmlUI();
 
+  g_camera = new Camera();
   document.onkeydown = keydown;
 
   initTextures();
 
-
   // Specify the color for clearing <canvas>
   gl.clearColor(0,0,0,1);
 
-  // Clear <canvas>
-  // gl.clear(gl.COLOR_BUFFER_BIT);
-  //renderAllShapes();
   requestAnimationFrame(tick);
 }
 
 function keydown(ev) {
-  if(ev.keyCode==39 || ev.keyCode == 68){ // Right Arrow or D
-    g_camera.moveRight();
- } else if (ev.keyCode==37 || ev.keyCode == 65){ // Left Arrow or A
-    g_camera.moveLeft();
- } else if (ev.keyCode==38 || ev.keyCode == 87){ // up Arrow or W
+  if (ev.keyCode == 87){ 
     g_camera.moveForward();
- } else if (ev.keyCode==40 || ev.keyCode == 83){ // down Arrow or S
-    g_camera.back();
-  }else if (ev.keyCode==81){ // Q
+  } else if (ev.keyCode == 83){
+    g_camera.moveBack();
+  } else if(ev.keyCode == 65){ 
+    g_camera.moveLeft();
+  } else if (ev.keyCode == 68){ 
+    g_camera.moveRight();
+  } else if (ev.keyCode==81){ 
     g_camera.panLeft();
-  } else if (ev.keyCode==69){ // E
+  } else if (ev.keyCode==69){ 
     g_camera.panRight();
- }
- renderScene();
+  }
+  renderScene();
 }
 
 var g_startTime = performance.now()/1000.0;
@@ -353,6 +352,56 @@ function renderScene(){
   renderAllShapes();
 }
 
+var g_map = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
+  [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1],
+  [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1],
+  [0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,0],
+  [0,1,0,0,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,0],
+  [0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0],
+  [0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,0,0,0],
+  [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,1,0,0,0],
+  [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,1,1,1,0],
+  [0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,1,1,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,0,1,1,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,1,1,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0],
+  [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0],
+  [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0],
+  [0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+  [0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+];
+
+function drawMap() {
+  for (x = 0; x < 32; x++){
+    for (y = 0; y < 32; y++){
+      if(g_map[x][y]==1){
+      // if (x == 0 || x == 15 || y==0 || y==15){
+        var block = new Cube();
+        block.color = [1,1,1,1];
+        block.matrix.scale(.25, 1.5, .25);
+        block.matrix.translate(x-16, -.5, y-16);
+        block.renderfast();
+      }
+    }
+  }
+}
+
 function renderAllShapes(){
 
   var startTime = performance.now();
@@ -367,21 +416,52 @@ function renderAllShapes(){
   var scleraColor = [1,1,1,1];
   var noseColor = [0.12, 0.12, 0.09,1];
 
+  drawMap();
+
   //block1
   var block1 = new Cube();
   block1.color = [1,1,1,1];
   block1.textureNum = 1;
-  block1.matrix.translate(-.35,-.79,-.5);
-  block1.matrix.scale(.7,.2,1.2);
+  block1.matrix.translate(-1,-.79,-.5);
+  block1.matrix.scale(2,.2,1.2);
   block1.render();
+  //block2
+  var block2 = new Cube();
+  block2.color = [1,1,1,1];
+  block2.textureNum = 1;
+  block2.matrix.translate(-1,-.79,-1.5);
+  block2.matrix.scale(2,.2,.5);
+  block2.render();
+  //block3
+  var block3 = new Cube();
+  block3.color = [1,1,1,1];
+  block3.textureNum = 1;
+  block3.matrix.translate(.5,-.79,-1);
+  block3.matrix.scale(.5,.2,.5);
+  block3.render();
+  //block4
+  var block4 = new Cube();
+  block4.color = [1,1,1,1];
+  block4.textureNum = 1;
+  block4.matrix.translate(-1,-.79,-1);
+  block4.matrix.scale(.5,.2,.5);
+  block4.render();
 
   //iceblock
   var iceblock = new Cube();
   iceblock.color = [.72,.91,.92,1];
   
-  iceblock.matrix.translate(-1.5,-.79,-.5);
-  iceblock.matrix.scale(.5,.5,.5);
+  iceblock.matrix.translate(-.5,-.79,-1);
+  iceblock.matrix.scale(.5,.2,.5);
   iceblock.render();
+  //iceblock2
+  var iceblock2 = new Cube();
+  iceblock2.color = [.72,.91,.92,1];
+  
+  iceblock2.matrix.translate(0,-.79,-1);
+  iceblock2.matrix.scale(.5,.2,.5);
+  iceblock2.render();
+  
 
 
   //ground

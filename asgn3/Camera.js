@@ -2,7 +2,7 @@ class Camera{
    constructor(){
       this.fov = 60;
       this.eye = new Vector3([0,.5,3]);
-      this.at  = new Vector3([0,0,-100]);
+      this.at  = new Vector3([0,0,-1]);
       this.up  = new Vector3([0,1,0]);
       this.viewMat = new Matrix4();
       
@@ -13,9 +13,11 @@ class Camera{
 
       this.projMat = new Matrix4();
       this.projMat.setPerspective(50, 1*canvas.width/canvas.height, 1, 1000);
+      console.log("Hi");
    }
    
    moveForward(){
+      console.log("HI");
       var d = new Vector3([0,0,0]);
       d.set(this.at);
       d.sub(this.eye);
@@ -112,4 +114,4 @@ class Camera{
       this.at.elements[1] -= 5;
    }
   
- }
+}
