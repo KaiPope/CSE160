@@ -31,8 +31,8 @@ class Cube{
 
         gl.uniform4f(u_FragColor, rgba[0]*.8, rgba[1]*.8, rgba[2]*.8, rgba[3])
         //top
-        drawTriangle3DUV( [0,1,0,  0,1,1,  1,1,1], [1,0, 0,1, 1,1] );
-        drawTriangle3DUV( [0,1,0,  1,1,1,  1,1,0], [0,1, 1,1, 0,0] );
+        drawTriangle3DUV( [0,1,0,  0,1,1,  1,1,1], [0,0, 0,1, 1,1] );
+        drawTriangle3DUV( [0,1,0,  1,1,1,  1,1,0], [0,0, 1,1, 1,0]  );
         // drawTriangle3D( [0.0,1.0,0.0,  0.0,1.0,1.0,  1.0,1.0,1.0 ]);
         // drawTriangle3D( [0.0,1.0,0.0,  1.0,1.0,1.0,  1.0,1.0,0.0 ]);
 
@@ -88,7 +88,7 @@ class Cube{
         allverts = allverts.concat([0,0,0, 0,1,0, 0,1,1 ]);
         allverts = allverts.concat([0,1,1, 0,0,0, 0,0,1 ]);
         // Right
-        allverts = allverts.concat([0,0,0, 1,1,0, 1,1,1 ]);
+        allverts = allverts.concat([1,0,0, 1,1,0, 1,1,1 ]);
         allverts = allverts.concat([1,1,1, 1,0,0, 1,0,1 ]);
 
         drawTriangle3D(allverts);

@@ -1,96 +1,142 @@
 class Camera{
-    constructor(){
-       this.fov = 60;
-       this.eye = new Vector3([0,.5,3]);
-       this.at  = new Vector3([0,0,-100]);
-       this.up  = new Vector3([0,1,0]);
-       this.viewMat = new Matrix4();
+   constructor(){
+      this.eye = new Vector3([4.65,.5,-4.42]);
+      this.at  = new Vector3([-4,0,80]);
+      this.up  = new Vector3([0,1,0]);
+      this.viewMat = new Matrix4();
       
-       this.projMat = new Matrix4();
-       this.projMat.setPerspective(50, canvas.width/canvas.height, 0.1, 1000);
-    }
-    
-     
-  
-   forward() {
-         var f = new Vector3([0,0,0]);
-         f.set(this.at);
-         f.sub(this.eye);
-         f.normalize();
-         this.eye = this.eye.add(f);
-         this.at = this.at.add(f);
+      this.viewMat = new Matrix4();
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+                           this.at.elements[0], this.at.elements[1], this.at.elements[2],
+                           this.up.elements[0], this.up.elements[1], this.up.elements[2]); 
+      this.projMat = new Matrix4();
+      this.projMat.setPerspective(60, 1*canvas.width/canvas.height, .1, 100);
+   }
+   
+   moveForward(){
+      var d = new Vector3([0,0,0]);
+      d.set(this.at);
+      d.sub(this.eye);
+      d.normalize();
+      this.eye = this.eye.add(d.mul(.3));
+      this.at = this.at.add(d.mul(.3));
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+         this.at.elements[0], this.at.elements[1], this.at.elements[2],
+         this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
-   back() {
-         var b = new Vector3([0,0,0]);
-         b.set(this.at);
-         b.sub(this.eye);
-         b.normalize();
-         this.eye = this.eye.sub(b);
-         this.at = this.at.sub(b);
+   back(){
+      var d = new Vector3([0,0,0]);
+      d.set(this.at);
+      d.sub(this.eye);
+      d.normalize();
+      this.eye = this.eye.sub(d.mul(.3));
+      this.at = this.at.sub(d.mul(.3));
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+         this.at.elements[0], this.at.elements[1], this.at.elements[2],
+         this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
-   left() {
-         var L = new Vector3([0,0,0]);
-         L.set(this.at);
-         L.sub(this.eye);
-         L.normalize();
-         var s = Vector3.cross(this.up, L);
-         this.at.add(s);
-         this.eye.add(s);
+   left(){
+      var d = new Vector3([0,0,0]);
+      d.set(this.at);
+      d.sub(this.eye);
+      d = d.normalize();
+      var l = new Vector3([0,0,0]);
+      l.set(d);
+      console.log(this.up);
+      console.log(d);
+      l.Vector3.cross(this.up, d);
+      l = l.normalize();
+      this.eye.add(l);
+      this.at = this.at.add(l);
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+         this.at.elements[0], this.at.elements[1], this.at.elements[2],
+         this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
-   right() {
-         var R = new Vector3([0,0,0]);
-         R.set(this.at);
-         R.sub(this.eye);
-         R.normalize();
-         var s = Vector3.cross(R, this.up);
-         this.at.add(s);
-         this.eye.add(s);
+   right(){
+      var d = new Vector3([0,0,0]);
+      d.set(this.at);
+      d.sub(this.eye);
+      d = d.normalize();
+      // var r = new Vector3([0,0,0]);
+      // //r.set(d);
+      // r.Vector3.cross(this.up, d);
+      var r = Vector3.cross(d, this.up);
+      r = r.normalize();
+      this.eye.add(r);
+      this.at = this.at.add(r);
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+         this.at.elements[0], this.at.elements[1], this.at.elements[2],
+         this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
-   moveUp() {
-         this.eye.add(this.up);
+   panLeft(){
+      var d = new Vector3([0,0,0]);
+      d.set(this.at);
+      d.sub(this.eye);
+      var l = Math.sqrt(d.elements[0]*d.elements[0] + d.elements[2]*d.elements[2]);
+      var theta = Math.atan2(d.elements[2], d.elements[0]);
+      theta -= (3 * Math.PI / 180);
+      d.elements[0] = l * Math.cos(theta);
+      d.elements[2] = l * Math.sin(theta);
+      this.at.set(d);
+      this.at.add(this.eye);
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+            this.at.elements[0], this.at.elements[1], this.at.elements[2],
+            this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+
+      // let f = new Vector3;
+      // f.set(this.at);
+      // f.sub(this.eye);
+      // let rotationMatrix = new Matrix4();
+      // rotationMatrix.setIdentity();
+      // rotationMatrix.setRotate(1, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+      // let pear = rotationMatrix.multiplyVector3(f);
+      // this.at = pear.add(this.eye);
+      // this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+      //             this.at.elements[0], this.at.elements[1], this.at.elements[2],
+      //             this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
-   moveDown() {
-         this.eye.sub(this.up);
+
+   panRight(){
+      var d = new Vector3([0,0,0]);
+      d.set(this.at);
+      d.sub(this.eye);
+      var r = Math.sqrt(d.elements[0]*d.elements[0] + d.elements[2]*d.elements[2]);
+      var theta = Math.atan2(d.elements[2], d.elements[0]);
+      theta += (3 * Math.PI / 180);
+      d.elements[0] = r * Math.cos(theta);
+      d.elements[2] = r * Math.sin(theta);
+      this.at.set(d);
+      this.at.add(this.eye);
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+            this.at.elements[0], this.at.elements[1], this.at.elements[2],
+            this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
-   rotateCameraRight() {
-         var atP = new Vector3([0,0,0]);
-         atP.set(this.at);
-         atP.sub(this.eye);
-         var r = Math.sqrt(atP.elements[0]*atP.elements[0] + atP.elements[2]*atP.elements[2]);
-         var theta = Math.atan2(atP.elements[2], atP.elements[0]);
-         theta += (5 * Math.PI / 180);
-         atP.elements[0] = r * Math.cos(theta);
-         atP.elements[2] = r * Math.sin(theta);
-         this.at.set(atP);
-         this.at.add(this.eye);
-   }
+   // moveUp() {
+   //    this.eye.add(this.up);
+   // }
 
-   rotateCameraLeft() {
-         var atP = new Vector3([0,0,0]);
-         atP.set(this.at);
-         atP.sub(this.eye);
-         var r = Math.sqrt(atP.elements[0]*atP.elements[0] + atP.elements[2]*atP.elements[2]);
-         var theta = Math.atan2(atP.elements[2], atP.elements[0]);
-         theta -= (5 * Math.PI / 180);
-         atP.elements[0] = r * Math.cos(theta);
-         atP.elements[2] = r * Math.sin(theta);
-         this.at.set(atP);
-         this.at.add(this.eye);
-   }
+   // moveDown() {
+   //    this.eye.sub(this.up);
+   // }
 
    rotateCameraUp() {
-         this.at.elements[1] += 5;
+      this.at.elements[1] += 5; 
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+            this.at.elements[0], this.at.elements[1], this.at.elements[2],
+            this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
    rotateCameraDown() {
-         this.at.elements[1] -= 5;
+      this.at.elements[1] -= 5;
+      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
+            this.at.elements[0], this.at.elements[1], this.at.elements[2],
+            this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
-}
   
- 
+}
