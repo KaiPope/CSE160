@@ -133,9 +133,9 @@ class Vector3 {
         let v1 = other1.elements;
         let v2 = other2.elements;
 
-        v3[0] = (v1[1]*v2[2])-(v1[2]*v2[1]);
-        v3[1] = 0-(v1[0]*v2[2])+(v1[2]*v2[0]);
-        v3[2] = (v1[0]*v2[1])-(v1[1]*v2[0]);
+        v3.elements[0] = (v1[1]*v2[2])-(v1[2]*v2[1]);
+        v3.elements[1] = 0-(v1[0]*v2[2])+(v1[2]*v2[0]);
+        v3.elements[2] = (v1[0]*v2[1])-(v1[1]*v2[0]);
         // Don't delete the return statement.
         return v3;
     }

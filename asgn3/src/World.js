@@ -179,6 +179,9 @@ let g_animation = false;
 
 function addActionsForHtmlUI(){
 
+  document.onkeydown = keydown;
+  document.onkeyup = keyup;
+
   document.getElementById('animationOnButton').onclick = function() {g_animation=true};
   document.getElementById('animationOffButton').onclick = function() {g_animation=false};
 
@@ -263,8 +266,6 @@ function sendTextureToGLSL1(image){
   console.log('finished loadTexture1');
 }
 
-
-
 function main() {
 
   setupWebGL();
@@ -273,7 +274,7 @@ function main() {
   addActionsForHtmlUI();
 
   g_camera = new Camera();
-  document.onkeydown = keydown;
+  
 
   initTextures();
 
@@ -283,34 +284,93 @@ function main() {
   requestAnimationFrame(tick);
 }
 
+var forward = false;
+var back = false;
+var left = false;
+var right = false;
+var pLeft = false;
+var pRight = false;
+var pUp = false;
+var pDown = false;
+// var f = false;
+// var f = false;
+
+
 function keydown(ev) {
   if (ev.keyCode == 87){ 
-    g_camera.moveForward();
+    forward = true;
   } else if (ev.keyCode == 83){
-    g_camera.back();
+    back = true;
   } else if(ev.keyCode == 65){ 
-    g_camera.left();
+    left = true;
   } else if (ev.keyCode == 68){ 
-    g_camera.right();
+    right = true;
   } else if (ev.keyCode==81){ 
-    g_camera.panLeft();
+    pLeft = true;
   } else if (ev.keyCode==69){ 
-    g_camera.panRight();
+    pRight = true;
   }else if(ev.keyCode==82){
-    g_camera.panUp();
+    pUp = true;
   }else if(ev.keyCode==70){
+    pDown = true;
+  }
+}
+
+function keyup(ev) {
+  if (ev.keyCode == 87){ 
+    forward = false;
+  } else if (ev.keyCode == 83){
+    back = false;
+  } else if(ev.keyCode == 65){ 
+    left = false;
+  } else if (ev.keyCode == 68){ 
+    right = false;
+  } else if (ev.keyCode==81){ 
+    pLeft = false;
+  } else if (ev.keyCode==69){ 
+    pRight = false;
+  }else if(ev.keyCode==82){
+    pUp = false;
+  }else if(ev.keyCode==70){
+    pDown = false;
+  }
+}
+
+function checkKey(){
+  if(forward){
+    g_camera.moveForward();
+  }
+  if(back){
+    g_camera.moveBack();
+  }
+  if(left){
+    g_camera.moveLeft();
+  }
+  if(right){
+    g_camera.moveRight();
+  }
+  if(pLeft){
+    g_camera.panLeft();
+  }
+  if(pRight){
+    g_camera.panRight();
+  }
+  if(pUp){
+    g_camera.panUp();
+  }
+  if(pDown){
     g_camera.panDown();
   }
-
-  renderScene();
 }
 
 var g_startTime = performance.now()/1000.0;
 var g_seconds = performance.now()/1000.0-g_startTime;
 
 function tick(){
-  
+
   g_seconds = performance.now()/1000.0-g_startTime;
+  
+  checkKey();
   
   updateAnimationAngles();
 
@@ -339,15 +399,15 @@ function updateAnimationAngles(){
 }
 
 function renderScene(){
+  g_camera.viewMat.setLookAt(g_camera.eye.elements[0], g_camera.eye.elements[1], g_camera.eye.elements[2], 
+                        g_camera.at.elements[0], g_camera.at.elements[1], g_camera.at.elements[2],
+                        g_camera.up.elements[0], g_camera.up.elements[1], g_camera.up.elements[2]); 
 
-  var projMat = g_camera.projMat;
-  
-  //projMat.setPerspective(60, canvas.width/canvas.height, .1, 100);
-  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+  g_camera.projMat.setPerspective(60, 1*canvas.width/canvas.height, .1, 1000);
 
-  var viewMat = g_camera.viewMat;
-  //viewMat.setLookAt(0,0,-3, 0,0,100, 0,1,0);
-  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, g_camera.projMat.elements);
+
+  gl.uniformMatrix4fv(u_ViewMatrix, false, g_camera.viewMat.elements);
 
   var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
@@ -355,7 +415,6 @@ function renderScene(){
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT);
-
   
   renderAllShapes();
 }
