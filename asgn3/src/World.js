@@ -297,9 +297,9 @@ function keydown(ev) {
   } else if (ev.keyCode==69){ 
     g_camera.panRight();
   }else if(ev.keyCode==82){
-    g_camera.rotateCameraUp();
+    g_camera.panUp();
   }else if(ev.keyCode==70){
-    g_camera.rotateCameraDown();
+    g_camera.panDown();
   }
 
   renderScene();

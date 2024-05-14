@@ -38,21 +38,21 @@ class Camera{
    }
 
    left(){
-      var d = new Vector3([0,0,0]);
-      d.set(this.at);
-      d.sub(this.eye);
-      d = d.normalize();
-      var l = new Vector3([0,0,0]);
-      l.set(d);
-      console.log(this.up);
-      console.log(d);
-      l.Vector3.cross(this.up, d);
-      l = l.normalize();
-      this.eye.add(l);
-      this.at = this.at.add(l);
-      this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
-         this.at.elements[0], this.at.elements[1], this.at.elements[2],
-         this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+      var d = new Vector3;
+        d.set(this.at);
+        d.sub(this.eye);
+        d.normalize();
+        var l = new Vector3;
+        console.log(d);
+        l = Vector3.cross(this.up, d);
+        console.log(l);
+        //l.normalize();  
+        this.at.add(l.mul(.3));
+        this.eye.add(l.mul(.3));
+
+        this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1],  this.eye.elements[2],
+               this.at.elements[0],  this.at.elements[1],   this.at.elements[2],
+               this.up.elements[0],  this.up.elements[1],   this.up.elements[2]);
    }
 
    right(){
@@ -60,13 +60,11 @@ class Camera{
       d.set(this.at);
       d.sub(this.eye);
       d = d.normalize();
-      // var r = new Vector3([0,0,0]);
-      // //r.set(d);
-      // r.Vector3.cross(this.up, d);
-      var r = Vector3.cross(d, this.up);
+      var r = new Vector3([0,0,0]);
+      r = Vector3.cross(d, this.up);
       r = r.normalize();
-      this.eye.add(r);
-      this.at = this.at.add(r);
+      this.eye.add(r.mul(.3));
+      this.at.add(r.mul(.3));
       this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
          this.at.elements[0], this.at.elements[1], this.at.elements[2],
          this.up.elements[0], this.up.elements[1], this.up.elements[2]);
@@ -125,14 +123,14 @@ class Camera{
    //    this.eye.sub(this.up);
    // }
 
-   rotateCameraUp() {
-      this.at.elements[1] += 5; 
+   panUP() {
+      this.at.elements[1] += 5; //credit to jbrowne2 (minecraft bee hall of fame)
       this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
             this.at.elements[0], this.at.elements[1], this.at.elements[2],
             this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
-   rotateCameraDown() {
+   panDown() {
       this.at.elements[1] -= 5;
       this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
             this.at.elements[0], this.at.elements[1], this.at.elements[2],
