@@ -123,7 +123,7 @@ class Camera{
    //    this.eye.sub(this.up);
    // }
 
-   panUP() {
+   panUp() {
       this.at.elements[1] += 5; //credit to jbrowne2 (minecraft bee hall of fame)
       this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
             this.at.elements[0], this.at.elements[1], this.at.elements[2],
