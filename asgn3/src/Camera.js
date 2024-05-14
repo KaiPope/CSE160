@@ -3,6 +3,9 @@ class Camera{
       this.eye = new Vector3([4.65,.5,-4.42]);
       this.at  = new Vector3([-4,0,80]);
       this.up  = new Vector3([0,1,0]);
+      // this.eye = new Vector3([0,.5,3]);
+      // this.at  = new Vector3([0,0,-100]);
+      // this.up  = new Vector3([0,1,0]);
       this.viewMat = new Matrix4();
       
       this.viewMat = new Matrix4();
@@ -46,7 +49,8 @@ class Camera{
         console.log(d);
         l = Vector3.cross(this.up, d);
         console.log(l);
-        //l.normalize();  
+        l.normalize();  
+        console.log(l);
         this.at.add(l.mul(.3));
         this.eye.add(l.mul(.3));
 
@@ -84,18 +88,6 @@ class Camera{
       this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
             this.at.elements[0], this.at.elements[1], this.at.elements[2],
             this.up.elements[0], this.up.elements[1], this.up.elements[2]);
-
-      // let f = new Vector3;
-      // f.set(this.at);
-      // f.sub(this.eye);
-      // let rotationMatrix = new Matrix4();
-      // rotationMatrix.setIdentity();
-      // rotationMatrix.setRotate(1, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
-      // let pear = rotationMatrix.multiplyVector3(f);
-      // this.at = pear.add(this.eye);
-      // this.viewMat.setLookAt(this.eye.elements[0], this.eye.elements[1], this.eye.elements[2], 
-      //             this.at.elements[0], this.at.elements[1], this.at.elements[2],
-      //             this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
 
 
@@ -114,14 +106,6 @@ class Camera{
             this.at.elements[0], this.at.elements[1], this.at.elements[2],
             this.up.elements[0], this.up.elements[1], this.up.elements[2]);
    }
-
-   // moveUp() {
-   //    this.eye.add(this.up);
-   // }
-
-   // moveDown() {
-   //    this.eye.sub(this.up);
-   // }
 
    panUp() {
       this.at.elements[1] += 5; //credit to jbrowne2 (minecraft bee hall of fame)
