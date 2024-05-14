@@ -210,8 +210,8 @@ function initTextures(){
 
   image1.onload = function() { sendTextureToGLSL1(image1); };
 
-  image.src = '/lib/sky2.jpg';
-  image1.src = '/lib/snow.jpg';
+  image.src = '../lib/sky2.jpg';
+  image1.src = '../lib/snow.jpg';
 
   return true;
 
