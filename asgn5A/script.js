@@ -9,7 +9,7 @@ function main() {
 
 	const canvas = document.querySelector( '#c' );
 	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
-	//renderer.setSize(450,300);
+	renderer.setSize(450,300);
 
 	const fov = 45;
 	const aspect = 2; // the canvas default
@@ -18,6 +18,7 @@ function main() {
 	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
 	camera.position.set( 0, 10, 20 );
 
+	// controls
 	const controls = new OrbitControls( camera, canvas );
 	controls.target.set( 0, 5, 0 );
 	controls.update();
@@ -56,6 +57,8 @@ function main() {
 
 	}
 
+
+	//sky box
 	const skyloader = new THREE.TextureLoader();
  	const texture = skyloader.load(
     '/lib/Sky.jpg',
@@ -71,7 +74,7 @@ function main() {
 		const planeSize = 40;
 
 		const loader = new THREE.TextureLoader();
-		const texture = loader.load( './lib/grasstexture.jpg' );
+		const texture = loader.load( './lib/Grass.jpg' );
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
 		texture.magFilter = THREE.NearestFilter;
@@ -90,12 +93,33 @@ function main() {
 
 	}
 
-	const boxWidth = 1;
-	const boxHeight = 1;
-	const boxDepth = 1;
-	const geometry = new THREE.BoxGeometry( boxWidth, boxHeight, boxDepth );
+	//Shapes 
+	const geometry = new THREE.BoxGeometry( 1, 1, 1 );
 	const cylinder = new THREE.CylinderGeometry(.5,.5,1,20);
-	const sphere = new THREE.SphereGeometry(.6, 16, 8);
+	//const sphere = new THREE.SphereGeometry(.6, 16, 8);
+	
+	//path
+	const path1 = new THREE.BoxGeometry(4,.5,16);
+	makeInstance(path1, 0xbccae0, 0,0,-12);
+	const path2 = new THREE.BoxGeometry(4,.5,16);
+	makeInstance(path2, 0xbccae0, 0,0,12);
+	const path3 = new THREE.BoxGeometry(16,.5,4);
+	makeInstance(path3, 0xbccae0, -12,0,0);
+	const path4 = new THREE.BoxGeometry(16,.5,4);
+	makeInstance(path4, 0xbccae0, 12,0,0);
+
+	const center = new THREE.CylinderGeometry(5, 5, .5, 20);
+	makeCylinder(center, 0xbccae0, 0,0,0);
+
+	//bushes
+	const bush1 = new THREE.SphereGeometry(.6, 16, 8);
+	const bush2 = new THREE.SphereGeometry(.6, 16, 8);
+
+
+
+
+	//Tree Trunk
+	const T1 = new THREE.TetrahedronGeometry()
 
 
 	function makeInstance( geometry, color, x,y, z ) {
@@ -132,7 +156,7 @@ function main() {
 		const texture = loader.load('./lib/Leaf.jpg');
 		texture.colorSpace = THREE.SRGBColorSpace;
 
-			const material = new THREE.MeshBasicMaterial( {
+		const material = new THREE.MeshBasicMaterial( {
 		map: texture
     	} );
 
@@ -146,13 +170,30 @@ function main() {
 		return sphere;
 
 	}
+	function makeRing(geometry, color, x, y, z){
+		const material = new THREE.MeshPhongMaterial( { color } );
+
+		const ring = new THREE.Mesh( geometry, material );
+		scene.add( ring );
+
+		ring.rotateX = Math.PI/2;
+		ring.position.x = x;
+		ring.position.y = y;
+		ring.position.z = z;
+
+		return ring;
+	}
 
 	const cubes = [
 		makeInstance( geometry, 0x7bba88, 2, 2, 1 ),
 		makeCylinder( cylinder, 0x8eb0e8, -4,2, 0 ),
-		makeSphere( sphere, 0xae7dc7, 4, 2, 0)
+		makeSphere( bush1, 0xae7dc7, -1.3, .7, -6)
+		//makeSphere( bush2, 0xae7dc7, 6, .7, -1.3)
+		
 	];
 
+
+	//Custom Obj (apple)
   	const loader = new GLTFLoader();
 
   	loader.load( './lib/gala-apple.glb', function ( gltf ) {
@@ -162,6 +203,7 @@ function main() {
       apple.position.x=-3;
       apple.position.y= 2;
       apple.position.Z= 1 ;
+	  apple.scale.set(.5,.5,.5);
 
     }, undefined, function ( error ) {
 
@@ -169,6 +211,8 @@ function main() {
 
     } );
 
+
+	// Render Display Size
 	function resizeRendererToDisplaySize( renderer ) {
 
 		const canvas = renderer.domElement;
@@ -185,6 +229,8 @@ function main() {
 
 	}
 
+
+	//Render
 	function render( time ) {
 
 		time *= 0.001; // convert time to seconds
