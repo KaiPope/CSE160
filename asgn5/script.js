@@ -275,8 +275,6 @@ function main() {
   	function makeSphere( geometry, color, x, y, z ) {
 
 		const loader = new THREE.TextureLoader();
-		// const texture = loader.load('./lib/Leaf.jpg');
-		// texture.colorSpace = THREE.SRGBColorSpace;
 
 		const material = new THREE.MeshBasicMaterial( {
 		color
