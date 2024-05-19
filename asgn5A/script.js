@@ -96,7 +96,7 @@ function main() {
 	//sky box
 	const skyloader = new THREE.TextureLoader();
  	const texture = skyloader.load(
-    '/lib/Sky.jpg',
+    './lib/Sky.jpg',
     () => {
       texture.mapping = THREE.EquirectangularReflectionMapping;
       texture.colorSpace = THREE.SRGBColorSpace;
