@@ -7,7 +7,9 @@ var VSHADER_SOURCE = `
   precision mediump float;
   attribute vec4 a_Position;
   attribute vec2 a_UV;
+  attribute vec3 a_Normal;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
@@ -15,6 +17,7 @@ var VSHADER_SOURCE = `
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
+    v_Normal = a_Normal;
   }`
 
 
@@ -22,12 +25,16 @@ var VSHADER_SOURCE = `
 var FSHADER_SOURCE = `
   precision mediump float;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
   uniform int u_whichTexture;
   void main() {
-    if(u_whichTexture == -2){
+    if (u_whichTexture == -3){
+      gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
+    }
+    else if(u_whichTexture == -2){
        gl_FragColor = u_FragColor;
     } else if (u_whichTexture == -1){
        gl_FragColor = vec4(v_UV, 1.0, 1.0);
@@ -88,6 +95,12 @@ function connectVariablesToGLSL(){
 
   a_UV = gl.getAttribLocation(gl.program, 'a_UV');
   if (!a_UV < 0) {
+    console.log('Failed to get the storage location of a_UV');
+    return;
+  }
+
+  a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
+  if (a_Normal < 0){
     console.log('Failed to get the storage location of a_UV');
     return;
   }
@@ -175,6 +188,7 @@ var g_camera;
 // let g_magentaAnimation = false;
 // let g_hoofAnimation = false;
 let g_animation = false;
+let g_normalOn = false;
 
 
 function addActionsForHtmlUI(){
@@ -184,6 +198,9 @@ function addActionsForHtmlUI(){
 
   document.getElementById('animationOnButton').onclick = function() {g_animation=true};
   document.getElementById('animationOffButton').onclick = function() {g_animation=false};
+
+  document.getElementById('normalOnButton').onclick = function() {g_normalOn = true};
+  document.getElementById('normalOffButton').onclick = function() {g_normalOn = false};
 
 
   // document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderScene();})
@@ -544,7 +561,7 @@ function renderAllShapes(){
   var sky = new Cube();
   sky.color=[1,0,0,1];
   sky.textureNum = 0;
-  sky.matrix.scale(50,50,50);
+  sky.matrix.scale(-30,-30,-30);
   sky.matrix.translate(-.5,-.5,-.5);
   sky.render();
 
