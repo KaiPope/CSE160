@@ -12,7 +12,6 @@ class Camera{
       d.set(this.at);
       d.sub(this.eye);
       d.normalize();
-      //console.log(d);
       d.div(8);
       this.eye.add(d);
       this.at.add(d);
@@ -34,7 +33,6 @@ class Camera{
       d.set(this.eye);
       d.sub(this.at);
       d.normalize();
-      // var l = new Vector3();
       var l = Vector3.cross(d, this.up);
       l.normalize(); 
       l.div(8); 
@@ -49,7 +47,6 @@ class Camera{
       d.normalize();
       var r = Vector3.cross(d, this.up);
       r.normalize();
-      console.log(r);
       r.div(8);
       r.mul(-1); 
       this.at.add(r);

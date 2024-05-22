@@ -181,6 +181,7 @@ let g_yellowAngle = 0;
 let g_magentaAngle = 0;
 let g_hoofAngle = 0;
 let g_tailAngle = 0;
+let g_lightPos = [0,1,2];
 
 var g_camera;
 
@@ -202,7 +203,9 @@ function addActionsForHtmlUI(){
   document.getElementById('normalOnButton').onclick = function() {g_normalOn = true};
   document.getElementById('normalOffButton').onclick = function() {g_normalOn = false};
 
-
+  document.getElementById('lightSlideX').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[0] = this.value/100; renderAllShapes();}});
+  document.getElementById('lightSlideY').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[1] = this.value/100; renderAllShapes();}});
+  document.getElementById('lightSlideZ').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[2] = this.value/100; renderAllShapes();}});
   // document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderScene();})
   // document.getElementById('magentaSlide').addEventListener('mousemove', function() { g_magentaAngle = this.value; renderScene();})
   // document.getElementById('hoofSlide').addEventListener('mousemove', function() { g_hoofAngle = this.value; renderScene();})
@@ -502,6 +505,20 @@ function renderAllShapes(){
 
   drawMap();
 
+  var light = new Cube();
+  light.color = p[2,2,0,1];
+  light.matrix.translate(g_lightPos[0],g_lightPos[1],g_lightPos[2]);
+  light.matrix.scale(.1,.1,.1);
+  light.matrix.translate(-.5,-.5,-.5);
+  light.render();
+
+  //sphere
+  var sphere = new Sphere();
+  sphere.color = [0,0,0,1];
+  if(g_normalOn) sphere.textureNum = -3;
+  sphere.matrix.translate(0,2,0);
+  sphere.render();
+  
   //block1
   var block1 = new Cube();
   block1.color = [1,1,1,1];
@@ -561,6 +578,7 @@ function renderAllShapes(){
   var sky = new Cube();
   sky.color=[1,0,0,1];
   sky.textureNum = 0;
+  if(g_normalOn) sky.textureNum = -3;
   sky.matrix.scale(-30,-30,-30);
   sky.matrix.translate(-.5,-.5,-.5);
   sky.render();
