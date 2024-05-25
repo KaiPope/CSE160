@@ -148,8 +148,6 @@ function drawTriangle3DUVNormal(vertices, uv, normals){
 
     gl.enableVertexAttribArray(a_UV);
 
-    gl.drawArrays(gl.TRIANGLES, 0, n);
-
     var normalBuffer = gl.createBuffer();
     if (!normalBuffer){
         console.log('Failed to create the buffer object');
@@ -165,4 +163,5 @@ function drawTriangle3DUVNormal(vertices, uv, normals){
     gl.enableVertexAttribArray(a_Normal);
 
     gl.drawArrays(gl.TRIANGLES, 0, n);
+    g_vertexBuffer=null;
 }

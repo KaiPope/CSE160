@@ -505,8 +505,9 @@ function renderAllShapes(){
 
   drawMap();
 
+  //light
   var light = new Cube();
-  light.color = p[2,2,0,1];
+  light.color = [2,2,0,1];
   light.matrix.translate(g_lightPos[0],g_lightPos[1],g_lightPos[2]);
   light.matrix.scale(.1,.1,.1);
   light.matrix.translate(-.5,-.5,-.5);
@@ -514,10 +515,18 @@ function renderAllShapes(){
 
   //sphere
   var sphere = new Sphere();
-  sphere.color = [0,0,0,1];
+  sphere.color = [.63,.72,.89,1];
   if(g_normalOn) sphere.textureNum = -3;
-  sphere.matrix.translate(0,2,0);
+  sphere.matrix.translate(-2,3,0);
   sphere.render();
+
+  //cube
+  var cube = new Cube();
+  cube.color = [.63,.44,.92,1];
+  if(g_normalOn) cube.textureNum = -3;
+  cube.matrix.translate(2,2,0);
+  cube.render();
+
   
   //block1
   var block1 = new Cube();
@@ -562,8 +571,6 @@ function renderAllShapes(){
   iceblock2.matrix.translate(0,-.79,-1);
   iceblock2.matrix.scale(.5,.2,.5);
   iceblock2.render();
-  
-
 
   //ground
   var ground = new Cube();
