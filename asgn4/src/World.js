@@ -14,10 +14,12 @@ var VSHADER_SOURCE = `
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
   uniform mat4 u_ProjectionMatrix;
+  varying vec4 v_VertPos;
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
     v_Normal = a_Normal;
+    v_VertPos = u_ModelMatrix * a_Position;
   }`
 
 
@@ -30,6 +32,10 @@ var FSHADER_SOURCE = `
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
   uniform int u_whichTexture;
+  uniform vec3 u_lightPos;
+  varying vec4 v_VertPos;
+  uniform vec3 u_cameraPos;
+  uniform bool u_lightOn;
   void main() {
     if (u_whichTexture == -3){
       gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
@@ -46,6 +52,36 @@ var FSHADER_SOURCE = `
        gl_FragColor = vec4(1,.2,.2,1);
     }
 
+    vec3 lightVector = u_lightPos - vec3(v_VertPos);
+    // vec3 lightVector = vec3(v_VertPos) - u_lightPos;
+    float r = length(lightVector);
+
+    // if(r<1.0){
+    //    gl_FragColor = vec4(1,0,0,1);
+    // } else if (r<2.0){
+    //    gl_FragColor = vec4(0,1,0,1);
+    // }
+
+    //gl_FragColor = vec4(vec3(gl_FragColor)/(r*r),1);
+
+    vec3 L = normalize(lightVector);
+    vec3 N = normalize(v_Normal);
+    float nDotL = max(dot(N,L), 0.0);
+
+    // gl_FragColor = gl_FragColor * nDotL;
+    // gl_FragColor.a = 1.0;
+
+    vec3 R = reflect(-L,N);
+    vec3 E = normalize(u_cameraPos-vec3(v_VertPos));
+
+    float specular = pow(max(dot(E,R), 0.0), 10.0);
+
+    vec3 diffuse = vec3(gl_FragColor) * nDotL * 0.7;
+    vec3 ambient = vec3(gl_FragColor) * 0.3;
+    if(u_lightOn){
+      gl_FragColor = vec4(specular+diffuse+ambient, 1.0);
+    }
+ 
   }`
 
 //Global Variables
@@ -62,7 +98,9 @@ let u_GlobalRotateMatrix;
 let u_Sampler0;
 let u_Sampler1;
 let u_whichTexture;
-
+let u_lightPos;
+let u_cameraPos;
+let u_lightOn;
 
 function setupWebGL(){
   // Retrieve <canvas> element
@@ -101,7 +139,7 @@ function connectVariablesToGLSL(){
 
   a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
   if (a_Normal < 0){
-    console.log('Failed to get the storage location of a_UV');
+    console.log('Failed to get the storage location of a_Normal');
     return;
   }
 
@@ -154,6 +192,24 @@ function connectVariablesToGLSL(){
     return;
   }
 
+  u_lightPos = gl.getUniformLocation(gl.program, 'u_lightPos');
+  if (!u_lightPos){
+    console.log('Failed to get the storage location of u_lightPos');
+    return;
+  }
+
+  u_cameraPos = gl.getUniformLocation(gl.program, 'u_cameraPos');
+  if (!u_cameraPos){
+    console.log('Failed to get the storage location of u_cameraPos');
+    return;
+  }
+
+  u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
+  if (!u_lightOn){
+    console.log('Failed to get the storage location of u_lightOn');
+    return;
+  }
+
   var identityM = new Matrix4();
  
   
@@ -181,7 +237,8 @@ let g_yellowAngle = 0;
 let g_magentaAngle = 0;
 let g_hoofAngle = 0;
 let g_tailAngle = 0;
-let g_lightPos = [0,1,2];
+let g_lightPos = [0,1,-2];
+let g_lightOn = true;
 
 var g_camera;
 
@@ -203,9 +260,12 @@ function addActionsForHtmlUI(){
   document.getElementById('normalOnButton').onclick = function() {g_normalOn = true};
   document.getElementById('normalOffButton').onclick = function() {g_normalOn = false};
 
-  document.getElementById('lightSlideX').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[0] = this.value/100; renderAllShapes();}});
-  document.getElementById('lightSlideY').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[1] = this.value/100; renderAllShapes();}});
-  document.getElementById('lightSlideZ').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[2] = this.value/100; renderAllShapes();}});
+  document.getElementById('lightOnButton').onclick = function() {g_lightOn = true};
+  document.getElementById('lightOffButton').onclick = function() {g_lightOn = false};
+
+  document.getElementById('lightSlideX').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[0] = this.value/100; renderScene();}});
+  document.getElementById('lightSlideY').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[1] = this.value/100; renderScene();}});
+  document.getElementById('lightSlideZ').addEventListener('mousemove', function(ev) {if(ev.buttons = 1){ g_lightPos[2] = this.value/100; renderScene();}});
   // document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderScene();})
   // document.getElementById('magentaSlide').addEventListener('mousemove', function() { g_magentaAngle = this.value; renderScene();})
   // document.getElementById('hoofSlide').addEventListener('mousemove', function() { g_hoofAngle = this.value; renderScene();})
@@ -416,6 +476,7 @@ function updateAnimationAngles(){
     g_tailAngle = (3*Math.cos(2*g_seconds));
 
   }
+  g_lightPos[0] = cos(g_seconds);
 }
 
 function renderScene(){
@@ -431,6 +492,10 @@ function renderScene(){
 
   var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+
+  gl.uniform3f(u_lightPos, g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+
+  gl.uniform1i(u_lightOn, g_lightOn);
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -480,7 +545,8 @@ function drawMap() {
       if(g_map[x][y]==1){
       // if (x == 0 || x == 15 || y==0 || y==15){
         var block = new Cube();
-        block.color = [1,1,1,1];
+        if(g_normalOn) block.textureNum = -3;
+        block.color = [.92,.92,.92,1];
         block.matrix.scale(.32, 1.7, .32);
         block.matrix.translate(x-16, -.6, y-16);
         block.renderfast();
@@ -505,13 +571,16 @@ function renderAllShapes(){
 
   drawMap();
 
+  
+
   //light
   var light = new Cube();
   light.color = [2,2,0,1];
   light.matrix.translate(g_lightPos[0],g_lightPos[1],g_lightPos[2]);
-  light.matrix.scale(.1,.1,.1);
+  light.matrix.scale(-.1,-.1,-.1);
   light.matrix.translate(-.5,-.5,-.5);
   light.render();
+  
 
   //sphere
   var sphere = new Sphere();
@@ -532,6 +601,7 @@ function renderAllShapes(){
   var block1 = new Cube();
   block1.color = [1,1,1,1];
   block1.textureNum = 1;
+  if(g_normalOn) block1.textureNum = -3;
   block1.matrix.translate(-1,-.79,-.5);
   block1.matrix.scale(2,.2,1.2);
   block1.render();
@@ -539,6 +609,7 @@ function renderAllShapes(){
   var block2 = new Cube();
   block2.color = [1,1,1,1];
   block2.textureNum = 1;
+  if(g_normalOn) block2.textureNum = -3;
   block2.matrix.translate(-1,-.79,-1.5);
   block2.matrix.scale(2,.2,.5);
   block2.render();
@@ -546,6 +617,7 @@ function renderAllShapes(){
   var block3 = new Cube();
   block3.color = [1,1,1,1];
   block3.textureNum = 1;
+  if(g_normalOn) block3.textureNum = -3;
   block3.matrix.translate(.5,-.79,-1);
   block3.matrix.scale(.5,.2,.5);
   block3.render();
@@ -553,21 +625,22 @@ function renderAllShapes(){
   var block4 = new Cube();
   block4.color = [1,1,1,1];
   block4.textureNum = 1;
+  if(g_normalOn) block4.textureNum = -3;
   block4.matrix.translate(-1,-.79,-1);
   block4.matrix.scale(.5,.2,.5);
   block4.render();
 
   //iceblock
   var iceblock = new Cube();
+  if(g_normalOn) iceblock.textureNum = -3;
   iceblock.color = [.72,.91,.92,1];
-  
   iceblock.matrix.translate(-.5,-.79,-1);
   iceblock.matrix.scale(.5,.2,.5);
   iceblock.render();
   //iceblock2
   var iceblock2 = new Cube();
   iceblock2.color = [.72,.91,.92,1];
-  
+  if(g_normalOn) iceblock2.textureNum = -3;
   iceblock2.matrix.translate(0,-.79,-1);
   iceblock2.matrix.scale(.5,.2,.5);
   iceblock2.render();
@@ -576,6 +649,7 @@ function renderAllShapes(){
   var ground = new Cube();
   ground.color=[1,1,1,1];
   ground.textureNum = 1;
+  if(g_normalOn) ground.textureNum = -3;
   ground.matrix.translate (0,-.75,0);
   ground.matrix.scale(10,0,10);
   ground.matrix.translate(-.5,0,-.5);
@@ -593,6 +667,7 @@ function renderAllShapes(){
   // body
   var body = new Cube();
   body.color = bodycolor;
+  if(g_normalOn) body.textureNum = -3;
   body.matrix.scale(.4, 0.5, 0.8);
   body.matrix.translate(-.5, -.4, -0.35);
   body.render();
@@ -602,6 +677,7 @@ function renderAllShapes(){
   tailBase.color = bodycolor;
   //tailBase.matrix.setTranslate(0,0,0);
   var tailCoord = tailBase.matrix;
+  if(g_normalOn) tailCoord.textureNum = -3;
   tailBase.matrix.rotate(30,1,0,0);
   tailBase.matrix.scale(.08, 0.05, 0.12);
   tailBase.matrix.translate(-.5, 9, 2.2);
@@ -611,6 +687,7 @@ function renderAllShapes(){
   var tail1 = new Cube();
   tail1.color = hairColor;
   tail1.matrix = tailCoord;
+  if(g_normalOn) tail1.textureNum = -3;
   tail1.matrix.setTranslate(-.055,.24,.49);
   tail1.matrix.rotate(-10,1,0,0);
   tail1.matrix.rotate(-g_tailAngle,1,0,0);
@@ -623,6 +700,7 @@ function renderAllShapes(){
   var tail2 = new Cube();
   tail2.color = hairColor;
   tail2.matrix = tail1Coord;
+  if(g_normalOn) tail2.textureNum = -3;
   tail2.matrix.translate(0,-.45,.01);
   tail2.matrix.rotate(10,1,0,0);
   //tail2.matrix.rotate(-g_tailAngle,1,0,0);
@@ -633,6 +711,7 @@ function renderAllShapes(){
   //neck
   var neck = new Cube();
   neck.color = bodycolor;
+  if(g_normalOn) neck.textureNum = -3;
   neck.matrix.setTranslate(0,0,0);
   neck.matrix.rotate(g_neckAngle,1,0,0);
   var neckCoord = new Matrix4(neck.matrix);
@@ -644,6 +723,7 @@ function renderAllShapes(){
   var headHair = new Cube();
   headHair.color = hairColor;
   headHair.matrix = neckCoord;
+  if(g_normalOn) headHair.textureNum = -3;
   headHair.matrix.scale(.1,.44,.1);
   headHair.matrix.translate(-.45,.6,-.6);
   headHair.render();
@@ -652,6 +732,7 @@ function renderAllShapes(){
   var head = new Cube();
   head.color = bodycolor;
   //head.matrix = neckCoord;
+  if(g_normalOn) head.textureNum = -3;
   head.matrix.rotate(g_neckAngle,1,0,0);
   head.matrix.rotate(g_headAngle,0,1,0);
   head.matrix.scale(.22,.2,.27);
@@ -661,6 +742,7 @@ function renderAllShapes(){
   //rightpupil
   var rPupil = new Cube();
   rPupil.color = pupilColor;
+  if(g_normalOn) rPupil.textureNum = -3;
   rPupil.matrix.rotate(g_neckAngle,1,0,0);
   rPupil.matrix.rotate(g_headAngle,0,1,0);
   rPupil.matrix.scale(.01,.05,.05);
@@ -670,6 +752,7 @@ function renderAllShapes(){
   //leftpupil
   var lPupil = new Cube();
   lPupil.color = pupilColor;
+  if(g_normalOn) lPupil.textureNum = -3;
   lPupil.matrix.rotate(g_neckAngle,1,0,0);
   lPupil.matrix.rotate(g_headAngle,0,1,0);
   lPupil.matrix.scale(.01,.05,.05);
@@ -680,6 +763,7 @@ function renderAllShapes(){
   //rightSclera
   var rSclera = new Cube();
   rSclera.color = scleraColor;
+  if(g_normalOn) rSclera.textureNum = -3;
   rSclera.matrix.rotate(g_neckAngle,1,0,0);
   rSclera.matrix.rotate(g_headAngle,0,1,0);
   rSclera.matrix.scale(.01,.05,.05);
@@ -689,6 +773,7 @@ function renderAllShapes(){
   //leftSclera
   var lSclera = new Cube();
   lSclera.color = scleraColor;
+  if(g_normalOn) lSclera.textureNum = -3;
   lSclera.matrix.rotate(g_neckAngle,1,0,0);
   lSclera.matrix.rotate(g_headAngle,0,1,0);
   lSclera.matrix.scale(.01,.05,.05);
@@ -698,6 +783,7 @@ function renderAllShapes(){
   //snout
   var snout = new Cube();
   snout.color = bodycolor;
+  if(g_normalOn) snout.textureNum = -3;
   snout.matrix.rotate(g_neckAngle,1,0,0);
   snout.matrix.rotate(g_headAngle,0,1,0);
   snout.matrix.scale(.18,.18,.2);
@@ -707,6 +793,7 @@ function renderAllShapes(){
   //left nose
   var lNose = new Cube();
   lNose.color = noseColor;
+  if(g_normalOn) lNose.textureNum = -3;
   lNose.matrix.rotate(g_neckAngle,1,0,0);
   lNose.matrix.rotate(g_headAngle,0,1,0);
   lNose.matrix.scale(.05,.05,.01);
@@ -716,6 +803,7 @@ function renderAllShapes(){
   //right nose
   var rNose = new Cube();
   rNose.color = noseColor;
+  if(g_normalOn) rNose.textureNum = -3;
   rNose.matrix.rotate(g_neckAngle,1,0,0);
   rNose.matrix.rotate(g_headAngle,0,1,0);
   rNose.matrix.scale(.05,.05,.01);
@@ -725,6 +813,7 @@ function renderAllShapes(){
   //mouth
   var mouth = new Cube();
   mouth.color = bodycolor;
+  if(g_normalOn) mouth.textureNum = -3;
   mouth.matrix.rotate(g_neckAngle,1,0,0);
   mouth.matrix.rotate(g_headAngle,0,1,0);
   mouth.matrix.scale(.18,.05,.18);
@@ -734,6 +823,7 @@ function renderAllShapes(){
   // upper legs
   var frLeg = new Cube();
   frLeg.color = upLegColor;
+  if(g_normalOn) frLeg.textureNum = -3;
   frLeg.matrix.setTranslate(.13, -.03, -.3);
   frLeg.matrix.rotate(-g_yellowAngle, 1, 0, 0); 
   var frCoord = new Matrix4(frLeg.matrix);
@@ -743,6 +833,7 @@ function renderAllShapes(){
 
   var flLeg = new Cube();
   flLeg.color = upLegColor;
+  if(g_normalOn) flLeg.textureNum = -3;
   flLeg.matrix.setTranslate(-.13, -0.03, -.3);
   flLeg.matrix.rotate(g_yellowAngle, 1, 0, 0);
   var flCoord = new Matrix4(flLeg.matrix);
@@ -752,6 +843,7 @@ function renderAllShapes(){
 
   var brLeg = new Cube();
   brLeg.color = upLegColor;
+  if(g_normalOn) brLeg.textureNum = -3;
   brLeg.matrix.setTranslate(.13, -.03 , .38);
   brLeg.matrix.rotate(g_yellowAngle, 1, 0, 0);
   var brCoord = new Matrix4(brLeg.matrix);
@@ -761,6 +853,7 @@ function renderAllShapes(){
 
   var blLeg = new Cube();
   blLeg.color = upLegColor;
+  if(g_normalOn) blLeg.textureNum = -3;
   blLeg.matrix.setTranslate(-.13, -.03, .38);
   blLeg.matrix.rotate(-g_yellowAngle, 1, 0, 0);
   var blCoord = new Matrix4(blLeg.matrix);
@@ -772,6 +865,7 @@ function renderAllShapes(){
   var frLow = new Cube();
   frLow.color = lowLegColor;
   frLow.matrix = frCoord;
+  if(g_normalOn) frLow.textureNum = -3;
   frLow.matrix.translate(.055, -.25, .02);
   frLow.matrix.rotate(g_magentaAngle, 1, 0, 0);
   var frLowCoord = new Matrix4(frLow.matrix);
@@ -782,6 +876,7 @@ function renderAllShapes(){
   var flLow = new Cube();
   flLow.color = lowLegColor;
   flLow.matrix = flCoord;
+  if(g_normalOn) flLow.textureNum = -3;
   flLow.matrix.translate(.06, -.25, .015);
   flLow.matrix.rotate(g_magentaAngle, 1, 0, 0);
   var flLowCoord = new Matrix4(flLow.matrix);
@@ -792,6 +887,7 @@ function renderAllShapes(){
   var brLow = new Cube();
   brLow.color = lowLegColor;
   brLow.matrix = brCoord;
+  if(g_normalOn) brLow.textureNum = -3;
   brLow.matrix.translate(.055, -.25, .02);
   brLow.matrix.rotate(g_magentaAngle, 1, 0, 0);
   var brLowCoord = new Matrix4(brLow.matrix);
@@ -802,6 +898,7 @@ function renderAllShapes(){
   var blLow = new Cube();
   blLow.color = lowLegColor;
   blLow.matrix = blCoord;
+  if(g_normalOn) blLow.textureNum = -3;
   blLow.matrix.translate(.06, -.25, 0.02);
   blLow.matrix.rotate(g_magentaAngle, 1, 0, 0);
   var blLowCoord = new Matrix4(blLow.matrix);
@@ -813,6 +910,7 @@ function renderAllShapes(){
   var frHoof = new Cube();
   frHoof.color = hoofColor;
   frHoof.matrix = frLowCoord;
+  if(g_normalOn) frHoof.textureNum = -3;
   frHoof.matrix.translate(-.13, -.2 , .13);
   frHoof.matrix.rotate(g_hoofAngle, 1, 0, 0);
   frHoof.matrix.scale(.15, .1, 0.15);
@@ -822,6 +920,7 @@ function renderAllShapes(){
   var flHoof = new Cube();
   flHoof.color = hoofColor;
   flHoof.matrix = flLowCoord;
+  if(g_normalOn) flHoof.textureNum = -3;
   flHoof.matrix.translate(-.13, -.2 , .13);
   flHoof.matrix.rotate(g_hoofAngle, 1, 0, 0);
   flHoof.matrix.scale(.15, .1, 0.15);
@@ -831,6 +930,7 @@ function renderAllShapes(){
   var brHoof = new Cube();
   brHoof.color = hoofColor;
   brHoof.matrix = brLowCoord;
+  if(g_normalOn) brHoof.textureNum = -3;
   brHoof.matrix.translate(-.13, -.2 , .13);
   brHoof.matrix.rotate(g_hoofAngle, 1, 0, 0);
   brHoof.matrix.scale(.15, .1, 0.15);
@@ -840,6 +940,7 @@ function renderAllShapes(){
   var blHoof = new Cube();
   blHoof.color = hoofColor;
   blHoof.matrix = blLowCoord;
+  if(g_normalOn) blHoof.textureNum = -3;
   blHoof.matrix.translate(-.13, -.2 , .13);
   blHoof.matrix.rotate(g_hoofAngle, 1, 0, 0);
   blHoof.matrix.scale(.15, .1, 0.15);
@@ -848,6 +949,7 @@ function renderAllShapes(){
 
   var lEar = new triPrism();
   lEar.color = bodycolor;
+  if(g_normalOn) lEar.textureNum = -3;
   lEar.matrix.rotate(g_neckAngle,1,0,0);
   lEar.matrix.rotate(g_headAngle,0,1,0);
   lEar.matrix.translate(0,.68,-.12);
@@ -856,6 +958,7 @@ function renderAllShapes(){
 
   var rEar = new triPrism();
   rEar.color = bodycolor;
+  if(g_normalOn) rEar.textureNum = -3;
   rEar.matrix.rotate(g_neckAngle,1,0,0);
   rEar.matrix.rotate(g_headAngle,0,1,0);
   rEar.matrix.translate(-.1,.68,-.12);
