@@ -414,15 +414,15 @@ function main() {
 
     const gltfLoader = new GLTFLoader();
     let car1, car2;
-    gltfLoader.load('./lib/car.glb', (gltf) => {
+    gltfLoader.load('./lib/car2.gltf', (gltf) => {
         car1 = gltf.scene.clone();
         car1.position.set(1, 0.25, -20);
-		car1.scale.set(.5,.5,.5);
+		car1.scale.set(.006,.006,.006);
         scene.add(car1);
         
         car2 = gltf.scene.clone();
         car2.position.set(-20, 0.25, -1); // Start point for second car
-		car2.scale.set(.5,.5,.5);
+		car2.scale.set(.006,.006,.006);
         scene.add(car2);
     });
 
@@ -542,7 +542,7 @@ function main() {
 	
 		if (car1) {
 			moveCar(car1, pathPoints1, pathIndex1);
-			if (car1.position.distanceTo(new THREE.Vector3(pathPoints1[pathIndex1].x, pathPoints1[pathIndex1].y, pathPoints1[pathIndex1].z)) < 2) {
+			if (car1.position.distanceTo(new THREE.Vector3(pathPoints1[pathIndex1].x, pathPoints1[pathIndex1].y, pathPoints1[pathIndex1].z)) < 2.5) {
 				pathIndex1++;
 				if (pathIndex1 === pathPoints1.length) {
 					// Teleport car1 back to the starting point
@@ -555,7 +555,7 @@ function main() {
 	
 		if (car2) {
 			moveCar(car2, pathPoints2, pathIndex2);
-			if (car2.position.distanceTo(new THREE.Vector3(pathPoints2[pathIndex2].x, pathPoints2[pathIndex2].y, pathPoints2[pathIndex2].z)) < 2) {
+			if (car2.position.distanceTo(new THREE.Vector3(pathPoints2[pathIndex2].x, pathPoints2[pathIndex2].y, pathPoints2[pathIndex2].z)) < 2.5) {
 				pathIndex2++;
 				if (pathIndex2 === pathPoints2.length) {
 					// Teleport car2 back to the starting point
