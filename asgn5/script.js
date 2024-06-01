@@ -140,34 +140,34 @@ function main() {
 	const path4 = new THREE.BoxGeometry(16,.5,4);
 	makeInstance(path4, 0xbccae0, 12,0,0);
 
-	const center = new THREE.CylinderGeometry(5, 5, .5, 20);
+	const center = new THREE.CylinderGeometry(6, 6, .5, 20);
 	makeCylinder(center, 0xbccae0, 0,0,0);
 
 	//bushes
 	const bush1 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush1, -3, .5, 5);
+	makeBush(bush1, -3.8, .5, 5.8);
 	const bush2 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush2, 3, .5, 5);
+	makeBush(bush2, 3.5, .5, 5.8);
 	const bush3 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush3, -5, .5, 3);
+	makeBush(bush3, -5.8, .5, 3.8);
 	const bush4 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush4, 5, .5, 3);
+	makeBush(bush4, 5.8, .5, 3.8);
 	const bush5 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush5, -4, .5, 4);
+	makeBush(bush5, -4.8, .5, 4.8);
 	const bush6 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush6, 4, .5, 4);
+	makeBush(bush6, 4.8, .5, 4.8);
 	const bush7 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush7, -3, .5, -5);
+	makeBush(bush7, -3.8, .5, -5.8);
 	const bush8 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush8, 3, .5, -5);
+	makeBush(bush8, 3.8, .5, -5.8);
 	const bush9 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush9, -5, .5, -3);
+	makeBush(bush9, -5.8, .5, -3.8);
 	const bush10 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush10, 5, .5, -3);
+	makeBush(bush10, 5.8, .5, -3.8);
 	const bush11 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush11, -4, .5, -4);
+	makeBush(bush11, -4.8, .5, -4.8);
 	const bush12 = new THREE.SphereGeometry(.6, 16, 8);
-	makeBush(bush12, 4, .5, -4);
+	makeBush(bush12, 4.8, .5, -4.8);
 	
 
 
@@ -411,6 +411,171 @@ function main() {
       console.error( error );
 
     } );
+
+    const gltfLoader = new GLTFLoader();
+    let car1, car2;
+    gltfLoader.load('./lib/car.glb', (gltf) => {
+        car1 = gltf.scene.clone();
+        car1.position.set(1, 0.25, -18);
+		car1.scale.set(.5,.5,.5);
+        scene.add(car1);
+        
+        car2 = gltf.scene.clone();
+        car2.position.set(-18, 0.25, -1); // Start point for second car
+		car2.scale.set(.5,.5,.5);
+        scene.add(car2);
+    });
+
+	// Path Points for Cars
+    let pathIndex1 = 0;
+    const pathPoints1 = [
+		{ x: 1, y: 0.25, z: -20 },
+		{ x: 1, y: 0.25, z: -4.5 },
+		{ x: 1, y: 0.25, z: -4 },
+		{ x: 1.1, y: 0.25, z: -3.9 },
+		{ x: 1.2, y: 0.25, z: -3.8 },
+		{ x: 1.3, y: 0.25, z: -3.7 },
+		{ x: 1.4, y: 0.25, z: -3.6 },
+		{ x: 1.5, y: 0.25, z: -3.5 },
+		{ x: 1.7, y: 0.25, z: -3.4 },
+		{ x: 1.9, y: 0.25, z: -3.3 },
+		{ x: 2, y: 0.25, z: -3.25 },
+		{ x: 2.1, y: 0.25, z: -3.2 },
+		{ x: 2.2, y: 0.25, z: -3.1 },
+		{ x: 2.3, y: 0.25, z: -3 },
+		{ x: 2.4, y: 0.25, z: -2.8 },
+		{ x: 2.5, y: 0.25, z: -2.6 },
+		{ x: 2.6, y: 0.25, z: -2.5 },
+		{ x: 2.8, y: 0.25, z: -2.2 },
+		{ x: 3, y: 0.25, z: -2 },
+		{ x: 3.2, y: 0.25, z: -1.8 },
+		{ x: 3.4, y: 0.25, z: -1.6 },
+		{ x: 3.5, y: 0.25, z: -1.5 },
+		{ x: 3.6, y: 0.25, z: -1.4 },
+		{ x: 3.7, y: 0.25, z: -1.3 },
+		{ x: 3.8, y: 0.25, z: -1.2 },
+		{ x: 3.9, y: 0.25, z: -1 },
+		{ x: 4, y: 0.25, z: -0.5 },
+		{ x: 4.1, y: 0.25, z: 0 },
+		{ x: 3.95, y: 0.25, z: 0.4 },
+		{ x: 3.8, y: 0.25, z: 0.75 },
+		{ x: 3.65, y: 0.25, z: 1.1 },
+		{ x: 3.5, y: 0.25, z: 1.5 },
+		{ x: 3.4, y: 0.25, z: 1.7 },
+		{ x: 3.3, y: 0.25, z: 1.9 },
+		{ x: 3.2, y: 0.25, z: 2 },
+		{ x: 3, y: 0.25, z: 2.2 },
+		{ x: 2.8, y: 0.25, z: 2.4 },
+		{ x: 2.6, y: 0.25, z: 2.5 },
+		{ x: 2.4, y: 0.25, z: 2.7 },
+		{ x: 2.2, y: 0.25, z: 2.9 },
+		{ x: 2, y: 0.25, z: 3 },
+		{ x: 1.8, y: 0.25, z: 3.2 },
+		{ x: 1.6, y: 0.25, z: 3.4 },
+		{ x: 1.4, y: 0.25, z: 3.6 },
+		{ x: 1.2, y: 0.25, z: 3.75 },
+		{ x: 1, y: 0.25, z: 3.9 },
+		{ x: .9, y: 0.25, z: 3.95 },
+		{ x: .7, y: 0.25, z: 4 },
+		{ x: .8, y: 0.25, z: 4.25 },
+		{ x: 1, y: 0.25, z: 4.5 },
+		{ x: 1, y: 0.25, z: 20 }
+	];
+
+    let pathIndex2 = 0;
+    const pathPoints2 = [
+		{x: -20, y: 0.25, z: -1 },
+		{ x: -4.5, y: 0.25, z: -1 },
+		{ x: -4, y: 0.25, z: -1 },
+		{ x: -3.9, y: 0.25, z: -1.1 },
+		{ x: -3.8, y: 0.25, z: -1.2 },
+		{ x: -3.7, y: 0.25, z: -1.3 },
+		{ x: -3.6, y: 0.25, z: -1.4 },
+		{ x: -3.5, y: 0.25, z: -1.5 },
+		{ x: -3.4, y: 0.25, z: -1.7 },
+		{ x: -3.3, y: 0.25, z: -1.9 },
+		{ x: -3.25, y: 0.25, z: -2 },
+		{ x: -3.2, y: 0.25, z: -2.1 },
+		{ x: -3.1, y: 0.25, z: -2.2 },
+		{ x: -3, y: 0.25, z: -2.3 },
+		{ x: -2.8, y: 0.25, z: -2.4 },
+		{ x: -2.6, y: 0.25, z: -2.5 },
+		{ x: -2.5, y: 0.25, z: -2.6 },
+		{ x: -2.2, y: 0.25, z: -2.8 },
+		{ x: -2, y: 0.25, z: -3 },
+		{ x: -1.8, y: 0.25, z: -3.2 },
+		{ x: -1.6, y: 0.25, z: -3.4 },
+		{ x: -1.5, y: 0.25, z: -3.6 },
+		{ x: -1.4, y: 0.25, z: -3.75 },
+		{ x: -1.3, y: 0.25, z: -3.9 },
+		{ x: -1.2, y: 0.25, z: -3.95 },
+		{ x: -1, y: 0.25, z: -4 },
+		{ x: -0.5, y: 0.25, z: -4.25 },
+		{ x: 0, y: 0.25, z: -4.5 },
+		{ x: 0.4, y: 0.25, z: -3.95 },
+		{ x: 0.75, y: 0.25, z: -3.8 },
+		{ x: 1.1, y: 0.25, z: -3.65 },
+		{ x: 1.5, y: 0.25, z: -3.5 },
+		{ x: 1.7, y: 0.25, z: -3.4 },
+		{ x: 1.9, y: 0.25, z: -3.3 },
+		{ x: 2, y: 0.25, z: -3.2 },
+		{ x: 2.2, y: 0.25, z: -3 },
+		{ x: 2.4, y: 0.25, z: -2.8 },
+		{ x: 2.5, y: 0.25, z: -2.6 },
+		{ x: 2.7, y: 0.25, z: -2.3 },
+		{ x: 3, y: 0.25, z: -2.2 },
+		{ x: 3.2, y: 0.25, z: -2 },
+		{ x: 3.4, y: 0.25, z: -1.8 },
+		{ x: 3.6, y: 0.25, z: -1.6 },
+		{ x: 3.75, y: 0.25, z: -1.2 },
+		{ x: 3.9, y: 0.25, z: -1 },
+		{ x: 3.95, y: 0.25, z: -.9 },
+		{ x: 4, y: 0.25, z: -.7 },
+		{ x: 4.25, y: 0.25, z: -.8 },
+		{ x: 4.5, y: 0.25, z: -1 },
+		{ x: 20, y: 0.25, z: -1},
+	];
+
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        if (car1) {
+            moveCar(car1, pathPoints1, pathIndex1);
+            if (car1.position.distanceTo(new THREE.Vector3(pathPoints1[pathIndex1].x, pathPoints1[pathIndex1].y, pathPoints1[pathIndex1].z)) < 2) {
+                pathIndex1 = (pathIndex1 + 1) % pathPoints1.length;
+                if (pathIndex1 === 0) {
+                    car1.position.set(pathPoints1[0].x, pathPoints1[0].y, pathPoints1[0].z);
+                }
+            }
+        }
+
+        if (car2) {
+            moveCar(car2, pathPoints2, pathIndex2);
+            if (car2.position.distanceTo(new THREE.Vector3(pathPoints2[pathIndex2].x, pathPoints2[pathIndex2].y, pathPoints2[pathIndex2].z)) < 2) {
+                pathIndex2 = (pathIndex2 + 1) % pathPoints2.length;
+                if (pathIndex2 === 0) {
+                    car2.position.set(pathPoints2[0].x, pathPoints2[0].y, pathPoints2[0].z);
+                }
+            }
+        }
+
+        renderer.render(scene, camera);
+    }
+
+    function moveCar(car, pathPoints, pathIndex) {
+        const nextPoint = new THREE.Vector3(pathPoints[pathIndex].x, pathPoints[pathIndex].y, pathPoints[pathIndex].z);
+        car.position.lerp(nextPoint, 0.04); // Increased interpolation speed for smoother movement
+
+        // Rotate the car to face the direction of movement
+        const nextPathIndex = (pathIndex + 1) % pathPoints.length;
+        const futurePoint = new THREE.Vector3(pathPoints[nextPathIndex].x, pathPoints[nextPathIndex].y, pathPoints[nextPathIndex].z);
+        const direction = futurePoint.clone().sub(car.position).normalize();
+        const angle = Math.atan2(direction.z, direction.x);
+        car.rotation.y = -angle + Math.PI / 2;
+    }
+
+    animate();
 
 
 	// Render Display Size
