@@ -416,12 +416,12 @@ function main() {
     let car1, car2;
     gltfLoader.load('./lib/car.glb', (gltf) => {
         car1 = gltf.scene.clone();
-        car1.position.set(1, 0.25, -18);
+        car1.position.set(1, 0.25, -20);
 		car1.scale.set(.5,.5,.5);
         scene.add(car1);
         
         car2 = gltf.scene.clone();
-        car2.position.set(-18, 0.25, -1); // Start point for second car
+        car2.position.set(-20, 0.25, -1); // Start point for second car
 		car2.scale.set(.5,.5,.5);
         scene.add(car2);
     });
@@ -538,42 +538,52 @@ function main() {
 
 
     function animate() {
-        requestAnimationFrame(animate);
-
-        if (car1) {
-            moveCar(car1, pathPoints1, pathIndex1);
-            if (car1.position.distanceTo(new THREE.Vector3(pathPoints1[pathIndex1].x, pathPoints1[pathIndex1].y, pathPoints1[pathIndex1].z)) < 2) {
-                pathIndex1 = (pathIndex1 + 1) % pathPoints1.length;
-                if (pathIndex1 === 0) {
-                    car1.position.set(pathPoints1[0].x, pathPoints1[0].y, pathPoints1[0].z);
-                }
-            }
-        }
-
-        if (car2) {
-            moveCar(car2, pathPoints2, pathIndex2);
-            if (car2.position.distanceTo(new THREE.Vector3(pathPoints2[pathIndex2].x, pathPoints2[pathIndex2].y, pathPoints2[pathIndex2].z)) < 2) {
-                pathIndex2 = (pathIndex2 + 1) % pathPoints2.length;
-                if (pathIndex2 === 0) {
-                    car2.position.set(pathPoints2[0].x, pathPoints2[0].y, pathPoints2[0].z);
-                }
-            }
-        }
-
-        renderer.render(scene, camera);
-    }
+		requestAnimationFrame(animate);
+	
+		if (car1) {
+			moveCar(car1, pathPoints1, pathIndex1);
+			if (car1.position.distanceTo(new THREE.Vector3(pathPoints1[pathIndex1].x, pathPoints1[pathIndex1].y, pathPoints1[pathIndex1].z)) < 2) {
+				pathIndex1++;
+				if (pathIndex1 === pathPoints1.length) {
+					// Teleport car1 back to the starting point
+					pathIndex1 = 0;
+					car1.position.set(pathPoints1[0].x, pathPoints1[0].y, pathPoints1[0].z);
+					car1.rotation.y = 0; 
+				}
+			}
+		}
+	
+		if (car2) {
+			moveCar(car2, pathPoints2, pathIndex2);
+			if (car2.position.distanceTo(new THREE.Vector3(pathPoints2[pathIndex2].x, pathPoints2[pathIndex2].y, pathPoints2[pathIndex2].z)) < 2) {
+				pathIndex2++;
+				if (pathIndex2 === pathPoints2.length) {
+					// Teleport car2 back to the starting point
+					pathIndex2 = 0;
+					car2.position.set(pathPoints2[0].x, pathPoints2[0].y, pathPoints2[0].z);
+					car2.rotation.y = 0; 
+				}
+			}
+		}
+	
+		renderer.render(scene, camera);
+	}
 
     function moveCar(car, pathPoints, pathIndex) {
-        const nextPoint = new THREE.Vector3(pathPoints[pathIndex].x, pathPoints[pathIndex].y, pathPoints[pathIndex].z);
-        car.position.lerp(nextPoint, 0.04); // Increased interpolation speed for smoother movement
+		const nextPoint = new THREE.Vector3(pathPoints[pathIndex].x, pathPoints[pathIndex].y, pathPoints[pathIndex].z);
+		car.position.lerp(nextPoint, 0.04); 
+	
+		// Rotate the car to face the direction of movement
+		const nextPathIndex = (pathIndex + 1) % pathPoints.length;
+		const futurePoint = new THREE.Vector3(pathPoints[nextPathIndex].x, pathPoints[nextPathIndex].y, pathPoints[nextPathIndex].z);
+		const direction = futurePoint.clone().sub(car.position).normalize();
+		const angle = Math.atan2(direction.x, direction.z);
+		car.rotation.y = angle;
 
-        // Rotate the car to face the direction of movement
-        const nextPathIndex = (pathIndex + 1) % pathPoints.length;
-        const futurePoint = new THREE.Vector3(pathPoints[nextPathIndex].x, pathPoints[nextPathIndex].y, pathPoints[nextPathIndex].z);
-        const direction = futurePoint.clone().sub(car.position).normalize();
-        const angle = Math.atan2(direction.z, direction.x);
-        car.rotation.y = -angle + Math.PI / 2;
-    }
+		if (pathIndex === pathPoints.length - 1) {
+			car.rotation.y += Math.PI;
+		}
+	}
 
     animate();
 
